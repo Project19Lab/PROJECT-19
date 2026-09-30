@@ -37,3 +37,4 @@ PROJECT 19 contains or incorporates open-source software including Three.js. Thi
 ## License
 
 PROJECT 19 original project material in this release is provided under the MIT License, subject to any third-party components and their respective licenses. See `LICENSE`.
+PROJECT 19 – Open Source Geometry Lab
