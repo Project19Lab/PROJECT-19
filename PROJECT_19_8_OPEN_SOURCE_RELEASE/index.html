@@ -3948,42 +3948,29 @@ const phiLines=new THREE.Group();root.add(phiLines);function buildPhi(){phiLines
 const cubeBase=groups.Würfel.verts.map(v=>v.clone());const oct=groups.Oktaeder.verts;function updateMorph(){let t=+morph.value/100;mv.textContent=Math.round(t*100)+'%';let pts=cubeBase.map(v=>{let best=oct.reduce((a,b)=>v.distanceTo(b)<v.distanceTo(a)?b:a,oct[0]);return v.clone().lerp(best,t)});groups.Würfel.edges.geometry.dispose();let seg=[];for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){let d=cubeBase[i].distanceTo(cubeBase[j]);if(Math.abs(d-2)<.02)seg.push(pts[i],pts[j])}groups.Würfel.edges.geometry=new THREE.BufferGeometry().setFromPoints(seg)}morph.oninput=updateMorph;
 
 
-// PROJECT 19 · ARM 2 SAFE BRANCH --------------------------------------
-// Arm 1 is the original construction. Arm 2 is an independent mirrored
-// comparison group, so its visibility/draw state cannot damage Arm 1.
-const arm2Root=new THREE.Group();scene.add(arm2Root);arm2Root.visible=false;
-const arm2Groups={};
-for(const [name,C,size,color] of defs){
- const geo=name==='Würfel'?new C(size,size,size):new C(size);
- const grp=new THREE.Group();
- const edges=new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color,transparent:true,opacity:.78}));
- grp.add(edges);arm2Root.add(grp);arm2Groups[name]={grp,edges};
+// PROJECT 19 · ARM 2 COMPLETE MIRROR -------------------------------
+// Arm 2 is a live mirror of the COMPLETE Arm-1 geometry tree.
+// Geometry/material resources are shared, while transforms/visibility stay independent.
+const arm2Root=root.clone(true);scene.add(arm2Root);arm2Root.visible=false;arm2Root.scale.x=-1;
+function syncArm2FromArm1(){
+ // Rebuild the mirror from the current complete Arm-1 tree so Sacred Geometry,
+ // phi relations, diagonals and all five solids remain one coherent system.
+ const fresh=root.clone(true);
+ while(arm2Root.children.length)arm2Root.remove(arm2Root.children[0]);
+ fresh.children.slice().forEach(ch=>arm2Root.add(ch));
+ arm2Root.rotation.copy(root.rotation);
 }
-
-const arm2Harmony=new THREE.Group();arm2Root.add(arm2Harmony);
-function arm2Line(points,color,opacity=.48,closed=false){const pts=closed?[...points,points[0]]:points;arm2Harmony.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color,transparent:true,opacity})));}
-for(const rot of [[0,0,0],[Math.PI/2,0,0],[0,Math.PI/2,0]]){const pts=[];for(let i=0;i<128;i++){const q=i/128*Math.PI*2,v=new THREE.Vector3(2.5*Math.cos(q),2.5*Math.sin(q),0);v.applyEuler(new THREE.Euler(...rot));pts.push(v)}arm2Line(pts,0x67e8f9,.22,true);}
-const arm2Phi=(1+Math.sqrt(5))/2,pr=1.55;
-[[[-pr,-pr/arm2Phi,0],[pr,-pr/arm2Phi,0],[pr,pr/arm2Phi,0],[-pr,pr/arm2Phi,0]],[[0,-pr,-pr/arm2Phi],[0,pr,-pr/arm2Phi],[0,pr,pr/arm2Phi],[0,-pr,pr/arm2Phi]],[[-pr/arm2Phi,0,-pr],[pr/arm2Phi,0,-pr],[pr/arm2Phi,0,pr],[-pr/arm2Phi,0,pr]]].forEach(r=>arm2Line(r.map(v=>new THREE.Vector3(...v)),0xffe066,.52,true));
-const arm2CubeDiag=new THREE.Group();arm2Root.add(arm2CubeDiag);
-const a2cv=uniqueVerts(new THREE.BoxGeometry(2,2,2));
-for(let i=0;i<a2cv.length;i++)for(let j=i+1;j<a2cv.length;j++){let same=0;for(const k of ['x','y','z'])if(Math.abs(a2cv[i][k]-a2cv[j][k])<1e-6)same++;if(same===1)addLine(arm2CubeDiag,a2cv[i],a2cv[j],0xfacc15,.45);if(a2cv[i].clone().add(a2cv[j]).length()<1e-6)addLine(arm2CubeDiag,a2cv[i],a2cv[j],0xffffff,.65);}
-arm2Root.scale.x=-1;
 let armMode=1;
 function setArmMode(mode){
- armMode=mode;
+ armMode=mode;syncArm2FromArm1();
  if(mode===1){root.position.x=0;root.visible=true;arm2Root.visible=false;camera.position.set(5.7,4.4,6.8);}
  if(mode===2){root.visible=false;arm2Root.visible=true;arm2Root.position.x=0;camera.position.set(-5.7,4.4,6.8);}
  if(mode===3){root.visible=true;arm2Root.visible=true;root.position.x=-2.7;arm2Root.position.x=2.7;camera.position.set(8.8,6.2,10.8);}
  controls.target.set(0,0,0);controls.update();
- $('arm1View').classList.toggle('active',mode===1);
- $('arm2View').classList.toggle('active',mode===2);
- $('bothArms').classList.toggle('active',mode===3);
- $('armStatus').textContent=mode===1?'Ansicht: ARM 1 · Original':mode===2?'Ansicht: ARM 2 · gespiegelt':'Ansicht: BEIDE ARME · Vergleich';
+ $('arm1View').classList.toggle('active',mode===1);$('arm2View').classList.toggle('active',mode===2);$('bothArms').classList.toggle('active',mode===3);
+ $('armStatus').textContent=mode===1?'Ansicht: ARM 1 · vollständiges Original':mode===2?'Ansicht: ARM 2 · vollständige Spiegelung':'Ansicht: BEIDE ARME · vollständige Harmonie';
 }
-$('arm1View').onclick=()=>setArmMode(1);
-$('arm2View').onclick=()=>setArmMode(2);
-$('bothArms').onclick=()=>setArmMode(3);
+$('arm1View').onclick=()=>setArmMode(1);$('arm2View').onclick=()=>setArmMode(2);$('bothArms').onclick=()=>setArmMode(3);
 
 let buildT=1,buildRunning=false,buildDir=1;
 const buildNames=['Blume des Lebens','Metatrons Würfel','Pentagramm 3D','Tetraeder','Würfel','Oktaeder','Dodekaeder','Ikosaeder'];
@@ -4013,10 +4000,8 @@ function applyBuild(){
  });
  metaLinks.children.forEach((o,i)=>{if(o.geometry)o.geometry.setDrawRange(0,meta*metaLinks.children.length>i?2:0);});
  metaNodes.children.forEach((o,i)=>o.visible=meta*13>i);revealGroup(pentGroup,pent);
- defs.forEach(([name],i)=>{const f=Math.max(0,Math.min(1,stage-3-i));groups[name].grp.visible=checks.querySelector(`[data-n='${name}']`).checked&&f>0;revealGroup(groups[name].grp,f);groups[name].grp.children.forEach(o=>{if(o.isMesh)o.visible=pointsOn&&f===1;});});
- defs.forEach(([name],i)=>{const f=Math.max(0,Math.min(1,stage-3-i));arm2Groups[name].grp.visible=f>0;revealGroup(arm2Groups[name].grp,f);});
- arm2Harmony.visible=buildT>0;revealGroup(arm2Harmony,Math.min(1,stage/3));arm2CubeDiag.visible=stage>4;revealGroup(arm2CubeDiag,Math.max(0,Math.min(1,stage-4)));
- phiLines.visible=phiOn&&buildT===1;
+ defs.forEach(([name],i)=>{const f=Math.max(0,Math.min(1,stage-3-i));groups[name].grp.visible=checks.querySelector(`[data-n='${name}']`).checked&&f>0;revealGroup(groups[name].grp,f);groups[name].grp.children.forEach(o=>{if(o.isMesh)o.visible=pointsOn&&f===1;});}); phiLines.visible=phiOn&&buildT===1;
+ if(armMode!==1)syncArm2FromArm1();
  $('buildTime').value=buildT*100;$('buildStatus').textContent=buildT===1?'100% · Aufbau vollständig':`${Math.round(buildT*100)}% · ${buildNames[Math.min(7,Math.max(0,Math.floor(stage)))]}`;
  $('buildPlay').textContent=buildRunning?'Ⅱ Aufbau pausieren':'▶ Aufbau starten';
 }
@@ -4029,7 +4014,7 @@ $('buildPrev').onclick=()=>seek((Math.ceil(buildT*8-1e-6)-1)/8);$('buildNext').o
 $('buildSpeed').oninput=e=>$('buildSpeedValue').textContent=(+e.target.value).toFixed(1)+'×';
 applyBuild();setArmMode(1);
 
-let last=performance.now();function anim(now){requestAnimationFrame(anim);let dt=(now-last)/1000;last=now;if(!paused){let a=.35*+speed.value*dt*dir;let ax=axis.value;if(ax==='X'||ax==='XYZ')root.rotation.x+=a*(ax==='XYZ'?.55:1);if(ax==='Y'||ax==='XYZ')root.rotation.y+=a*(ax==='XYZ'?.8:1);if(ax==='Z'||ax==='XYZ')root.rotation.z+=a*(ax==='XYZ'?.35:1)}updateBuild(dt);if(anchor && anchor.parent.visible)setInfo(anchor);else marker.visible=false;controls.update();renderer.render(scene,camera)}requestAnimationFrame(anim);
+let last=performance.now();function anim(now){requestAnimationFrame(anim);let dt=(now-last)/1000;last=now;if(!paused){let a=.35*+speed.value*dt*dir;let ax=axis.value;if(ax==='X'||ax==='XYZ')root.rotation.x+=a*(ax==='XYZ'?.55:1);if(ax==='Y'||ax==='XYZ')root.rotation.y+=a*(ax==='XYZ'?.8:1);if(ax==='Z'||ax==='XYZ')root.rotation.z+=a*(ax==='XYZ'?.35:1);if(armMode!==1)arm2Root.rotation.copy(root.rotation)}updateBuild(dt);if(anchor && anchor.parent.visible)setInfo(anchor);else marker.visible=false;controls.update();renderer.render(scene,camera)}requestAnimationFrame(anim);
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 </script>
 <style>
