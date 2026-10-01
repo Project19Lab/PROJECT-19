@@ -3964,7 +3964,7 @@ function ensurePascalPanel(){
  <button id="pnBoth" style="position:absolute;z-index:5;right:88px;top:12px">BEIDE</button>
  <div id="pnRows" style="position:absolute;left:8px;width:45%;top:66px;bottom:122px;overflow:auto;padding:8px"></div>
  <canvas id="pnViz" style="position:absolute;left:46%;right:0;top:58px;bottom:110px;width:54%;height:calc(100% - 168px)"></canvas>
- <div style="position:absolute;left:46%;right:10px;bottom:58px;padding:8px;background:#080d1ddd;border:1px solid #253056;border-radius:9px"><b id="pnTitle">0D · PUNKT</b><div id="pnMath" style="font-size:11px;color:#cbd5ff;margin-top:4px"></div></div>
+ <div style="position:absolute;left:46%;right:10px;bottom:58px;padding:8px;background:#080d1ddd;border:1px solid #253056;border-radius:9px"><b id="pnTitle">0D · PUNKT</b><div id="pnMath" style="font-size:11px;color:#cbd5ff;margin-top:4px"></div><div id="pnRelations" style="font-size:11px;color:#67e8f9;margin-top:4px"></div><div style="margin-top:6px;display:flex;gap:5px;align-items:center;flex-wrap:wrap"><b>♫ HARMONY</b><label>Basis <input id="pnBase" type="number" min="20" max="2000" value="110" style="width:65px"> Hz</label><label>Vol <input id="pnVol" type="range" min="0" max="100" value="24" style="width:70px"></label><button id="pnHarmony">DRONE AN</button><button id="pnOct">OKTAVEN 1:2:4:8</button><span id="pnFreqs" style="font-size:10px;color:#facc15"></span></div></div>
  <div style="position:absolute;left:0;right:0;bottom:0;height:52px;padding:8px;border-top:1px solid #253056;background:#070b18;display:flex;gap:6px;align-items:center">
  <button id="pnPrev">◀</button><button id="pnPlay">▶ REISE</button><button id="pnStop">■</button><button id="pnNext">▶</button><button id="pnReset">RESET ANSICHT</button><span id="pnStatus" style="font-size:11px;color:#9aa7ca"></span></div>`;
  document.body.appendChild(p);
@@ -3975,6 +3975,10 @@ function ensurePascalPanel(){
  p.querySelector('#pnPlay').onclick=()=>{clearInterval(pascalTimer);pascalTimer=setInterval(()=>{if(pascalCur>=19){clearInterval(pascalTimer);pascalTimer=null;return}setPascal(pascalCur+1)},700)};
  p.querySelector('#pnBack').onclick=()=>setArmMode(1);p.querySelector('#pnBoth').onclick=()=>setArmMode(3);
  p.querySelector('#pnReset').onclick=()=>{pnYaw=0;pnPitch=0;drawPascalViz()};
+ p.querySelector('#pnHarmony').onclick=()=>togglePascalHarmony(false);
+ p.querySelector('#pnOct').onclick=()=>togglePascalHarmony(true);
+ p.querySelector('#pnBase').onchange=()=>{if(pnAudioOn)startPascalHarmony(pnOctaves)};
+ p.querySelector('#pnVol').oninput=()=>{if(pnGain&&pnAC)pnGain.gain.setTargetAtTime((+p.querySelector('#pnVol').value/100)*.08,pnAC.currentTime,.03)};
  const cv=p.querySelector('#pnViz');
  cv.onpointerdown=e=>{pnDrag=true;pnLastX=e.clientX;pnLastY=e.clientY;cv.setPointerCapture(e.pointerId)};
  cv.onpointermove=e=>{if(!pnDrag)return;pnYaw+=(e.clientX-pnLastX)*.008;pnPitch+=(e.clientY-pnLastY)*.008;pnLastX=e.clientX;pnLastY=e.clientY;drawPascalViz()};
@@ -3990,12 +3994,25 @@ function drawPascalViz(){
  pts.forEach((q,i)=>{ctx.fillStyle=i%2?'#a78bfa':'#facc15';ctx.beginPath();ctx.arc(q[0],q[1],N<7?6:3.5,0,Math.PI*2);ctx.fill()});
  ctx.fillStyle='#9aa7ca';ctx.font='11px system-ui';ctx.fillText('ziehen = drehen · '+pascalCur+'D Projektion',12,18);
 }
+let pnAC=null,pnGain=null,pnOsc=[],pnAudioOn=false,pnOctaves=false;
+function stopPascalHarmony(){pnOsc.forEach(o=>{try{o.stop()}catch(e){}});pnOsc=[];pnAudioOn=false;const p=document.getElementById('pascalNative');if(p)p.querySelector('#pnHarmony').textContent='DRONE AN'}
+function startPascalHarmony(oct=false){
+ stopPascalHarmony();const p=ensurePascalPanel();pnAC=pnAC||new (window.AudioContext||window.webkitAudioContext)();pnGain=pnAC.createGain();pnGain.gain.value=(+p.querySelector('#pnVol').value/100)*.08;pnGain.connect(pnAC.destination);
+ const base=Math.max(20,+p.querySelector('#pnBase').value||110),row=pascalRows[pascalCur],m=Math.max(...row),rat=row.slice(0,Math.min(6,row.length)).map(x=>1+x/m);
+ let freqs=oct?[base,base*2,base*4,base*8]:rat.map(r=>base*r);freqs=freqs.filter(f=>f<16000);
+ freqs.forEach((hz,i)=>{const o=pnAC.createOscillator(),g=pnAC.createGain();o.type=i%2?'sine':'triangle';o.frequency.value=hz;g.gain.value=1/Math.max(2,freqs.length);o.connect(g);g.connect(pnGain);o.start();pnOsc.push(o)});
+ pnAudioOn=true;pnOctaves=oct;p.querySelector('#pnHarmony').textContent='DRONE AUS';p.querySelector('#pnFreqs').textContent=freqs.map(x=>x.toFixed(1)+' Hz').join(' · ');
+}
+function togglePascalHarmony(oct){if(pnAudioOn&&pnOctaves===oct){stopPascalHarmony();return}startPascalHarmony(oct)}
 function setPascal(n){
  pascalCur=Math.max(0,Math.min(19,n));const p=ensurePascalPanel(),r=pascalRows[pascalCur];
  p.querySelectorAll('#pnRows>div').forEach(d=>{const on=+d.dataset.n===pascalCur;d.querySelectorAll('span').forEach(s=>{s.style.background=on?'#4338ca':'#0c1430';s.style.borderColor=on?'#a5b4fc':'#27335d';s.style.color=on?'white':'#cbd5ff'})});
  const row=p.querySelector('#pnRows>div[data-n="'+pascalCur+'"]');if(row)row.scrollIntoView({block:'center'});
  const names=['PUNKT','STRECKE','DREIECK','TETRAEDER','4-SIMPLEX'];p.querySelector('#pnTitle').textContent=pascalCur+'D · '+(names[pascalCur]||pascalCur+'-SIMPLEX');
  p.querySelector('#pnMath').textContent='Pascal-Zeile '+pascalCur+': '+r.join(' · ')+'   |   Σ = 2^'+pascalCur+' = '+(2**pascalCur);
+ const odd=r.filter(x=>x%2).length,sym=r.every((x,i)=>x===r[r.length-1-i]),simplex=((pascalCur+1)*pascalCur)/2;
+ p.querySelector('#pnRelations').textContent='C(n,k)=C(n,n−k): '+(sym?'JA':'NEIN')+' · ungerade Einträge: '+odd+' · Zeilensumme: '+(2**pascalCur)+' · Dreieckszahl Tₙ: '+simplex+' · nächste Zeile = Nachbarsummen';
+ if(pnAudioOn)startPascalHarmony(pnOctaves);
  p.querySelector('#pnStatus').textContent='Zeile '+pascalCur+' · C('+pascalCur+',k)';requestAnimationFrame(drawPascalViz);
 }
 function setArmMode(mode){
