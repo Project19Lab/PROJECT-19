@@ -1,11 +1,12 @@
 <!doctype html><html lang='de'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>PROJECT 19.7 — Open Source Sacred Geometry 3D Lab</title><style>html,body{margin:0;height:100%;overflow:hidden;background:#070b12;color:#eef;font-family:system-ui,Segoe UI,Arial}#ui{position:absolute;z-index:5;top:12px;left:12px;width:350px;max-height:calc(100vh - 24px);overflow:auto;background:#101827e8;border:1px solid #334155;border-radius:14px;padding:14px;box-shadow:0 12px 30px #0008}h2{margin:0 0 8px;font-size:18px}.row{display:flex;gap:8px;align-items:center;margin:7px 0;flex-wrap:wrap}label{font-size:12px;color:#cbd5e1}button,select,input{accent-color:#7dd3fc}button,select{background:#182235;color:#eef;border:1px solid #475569;border-radius:8px;padding:6px 8px}button.active{outline:2px solid #7dd3fc}.tiny{font-size:11px;color:#94a3b8}#info{margin-top:8px;padding:8px;background:#09111f;border-radius:9px;font:12px ui-monospace,monospace;white-space:pre-line}canvas{display:block}</style><style>
-#pascalNative[data-layout="solo"] #pnRows{left:1%!important;width:64%!important;top:62px!important;height:calc(100vh - 330px)!important;overflow:hidden!important;padding:2px!important;transform:none!important}
-#pascalNative[data-layout="solo"] #pnRows>div{margin:0!important;height:calc((100vh - 334px)/20)!important;line-height:1!important;gap:2px!important;white-space:nowrap!important}
-#pascalNative[data-layout="solo"] #pnRows>div span{min-width:24px!important;padding:2px 4px!important;font-size:11px!important;border-radius:4px!important}
-#pascalNative[data-layout="solo"] #pnViz{left:66%!important;width:33%!important;top:62px!important;height:calc(100vh - 330px)!important}
-#pascalNative[data-layout="solo"] #pnLower{left:1%!important;right:1%!important;top:auto!important;height:224px!important;bottom:54px!important;overflow:hidden!important;padding:6px 10px!important;font-size:10px!important}
-#pascalNative[data-layout="solo"] #pnWave{height:68px!important;width:100%!important}
-#pascalNative[data-layout="solo"] #pnLower button{padding:5px 9px!important}
+#pascalNative[data-layout="solo"] #pnRows{left:.7%!important;width:67%!important;top:60px!important;height:calc(56vh - 64px)!important;overflow:hidden!important;padding:1px 2px!important;transform:none!important}
+#pascalNative[data-layout="solo"] #pnRows>div{margin:0!important;height:calc((56vh - 66px)/20)!important;line-height:.92!important;gap:2px!important;white-space:nowrap!important}
+#pascalNative[data-layout="solo"] #pnRows>div span{min-width:23px!important;padding:1px 3px!important;font-size:10px!important;border-radius:4px!important}
+#pascalNative[data-layout="solo"] #pnViz{left:68.5%!important;width:30.8%!important;top:60px!important;height:calc(56vh - 64px)!important}
+#pascalNative[data-layout="solo"] #pnLower{left:.7%!important;right:.7%!important;top:56vh!important;height:auto!important;bottom:54px!important;overflow:hidden!important;padding:6px 10px!important;font-size:10px!important}
+#pascalNative[data-layout="solo"] #pnWave{height:64px!important;width:100%!important;display:block!important}
+#pascalNative[data-layout="solo"] #pnLower button{padding:4px 8px!important}
+#pascalNative[data-layout="solo"] #pnLower>div{margin-top:3px!important}
 </style><style>@media(max-width:780px){#ui{width:270px;max-height:55vh}#soundPanel{width:250px;bottom:8px;right:8px;max-height:30vh;overflow:auto}}</style></head><body><style>
 #p19portal{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 38%,#123047 0,#08121f 36%,#03070d 78%);color:#eef;transition:opacity .65s ease,visibility .65s ease;font-family:system-ui,Segoe UI,Arial;overflow:auto}
 #p19portal.hide{opacity:0;visibility:hidden;pointer-events:none}.p19stars{position:absolute;inset:0;opacity:.32;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:47px 47px;mask-image:linear-gradient(to bottom,#000,transparent)}
@@ -4047,11 +4048,11 @@ function layoutPascal(mode){
  const p=ensurePascalPanel(),rows=p.querySelector('#pnRows'),viz=p.querySelector('#pnViz'),low=p.querySelector('#pnLower');
  if(mode===2){
   p.dataset.layout='solo';
-  rows.style.left='1%';rows.style.width='64%';rows.style.top='62px';rows.style.height='calc(100% - 330px)';rows.style.overflow='hidden';rows.style.transform='none';rows.style.padding='2px';
-  rows.querySelectorAll(':scope>div').forEach(d=>{d.style.margin='0';d.style.height='calc((100vh - 334px)/20)';d.style.lineHeight='1';d.style.gap='2px';d.querySelectorAll('span').forEach(s=>{s.style.minWidth='24px';s.style.padding='2px 4px';s.style.fontSize='11px';s.style.borderRadius='4px'})});
-  viz.style.left='66%';viz.style.width='33%';viz.style.top='62px';viz.style.height='calc(100% - 330px)';
-  low.style.left='1%';low.style.right='1%';low.style.top='auto';low.style.height='224px';low.style.bottom='54px';low.style.padding='6px 10px';low.style.fontSize='10px';low.style.overflow='hidden';
-  const wave=p.querySelector('#pnWave');if(wave){wave.style.height='68px';wave.style.width='100%'}
+  rows.style.left='.7%';rows.style.width='67%';rows.style.top='60px';rows.style.height='calc(56vh - 64px)';rows.style.overflow='hidden';rows.style.transform='none';rows.style.padding='1px 2px';
+  rows.querySelectorAll(':scope>div').forEach(d=>{d.style.margin='0';d.style.height='calc((56vh - 66px)/20)';d.style.lineHeight='.92';d.style.gap='2px';d.querySelectorAll('span').forEach(s=>{s.style.minWidth='23px';s.style.padding='1px 3px';s.style.fontSize='10px';s.style.borderRadius='4px'})});
+  viz.style.left='68.5%';viz.style.width='30.8%';viz.style.top='60px';viz.style.height='calc(56vh - 64px)';
+  low.style.left='.7%';low.style.right='.7%';low.style.top='56vh';low.style.height='auto';low.style.bottom='54px';low.style.padding='6px 10px';low.style.fontSize='10px';low.style.overflow='hidden';
+  const wave=p.querySelector('#pnWave');if(wave){wave.style.height='64px';wave.style.width='100%';wave.style.display='block'}
 
  }else{
   p.dataset.layout='both';
