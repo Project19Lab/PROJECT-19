@@ -3953,12 +3953,11 @@ const cubeBase=groups.Würfel.verts.map(v=>v.clone());const oct=groups.Oktaeder.
 // Geometry/material resources are shared, while transforms/visibility stay independent.
 const arm2Root=root.clone(true);scene.add(arm2Root);arm2Root.visible=false;arm2Root.scale.x=-1;
 function syncArm2FromArm1(){
- // Rebuild the mirror from the current complete Arm-1 tree so Sacred Geometry,
- // phi relations, diagonals and all five solids remain one coherent system.
- const fresh=root.clone(true);
+ // Clone only the complete CONTENT of Arm 1; world placement belongs to the view mode.
  while(arm2Root.children.length)arm2Root.remove(arm2Root.children[0]);
- fresh.children.slice().forEach(ch=>arm2Root.add(ch));
+ root.children.forEach(ch=>arm2Root.add(ch.clone(true)));
  arm2Root.rotation.copy(root.rotation);
+ arm2Root.scale.set(-1,1,1);
 }
 let armMode=1;
 function setArmMode(mode){
@@ -4001,7 +4000,6 @@ function applyBuild(){
  metaLinks.children.forEach((o,i)=>{if(o.geometry)o.geometry.setDrawRange(0,meta*metaLinks.children.length>i?2:0);});
  metaNodes.children.forEach((o,i)=>o.visible=meta*13>i);revealGroup(pentGroup,pent);
  defs.forEach(([name],i)=>{const f=Math.max(0,Math.min(1,stage-3-i));groups[name].grp.visible=checks.querySelector(`[data-n='${name}']`).checked&&f>0;revealGroup(groups[name].grp,f);groups[name].grp.children.forEach(o=>{if(o.isMesh)o.visible=pointsOn&&f===1;});}); phiLines.visible=phiOn&&buildT===1;
- if(armMode!==1)syncArm2FromArm1();
  $('buildTime').value=buildT*100;$('buildStatus').textContent=buildT===1?'100% · Aufbau vollständig':`${Math.round(buildT*100)}% · ${buildNames[Math.min(7,Math.max(0,Math.floor(stage)))]}`;
  $('buildPlay').textContent=buildRunning?'Ⅱ Aufbau pausieren':'▶ Aufbau starten';
 }
