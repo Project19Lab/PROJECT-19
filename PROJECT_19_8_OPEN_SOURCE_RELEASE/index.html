@@ -4039,12 +4039,16 @@ function layoutPascal(mode){
  const p=ensurePascalPanel(),rows=p.querySelector('#pnRows'),viz=p.querySelector('#pnViz'),low=p.querySelector('#pnLower');
  if(mode===2){
   p.dataset.layout='solo';
-  rows.style.left='1%';rows.style.width='48%';rows.style.top='62px';rows.style.height='66%';rows.style.transform='none';rows.style.padding='12px';
-  rows.querySelectorAll(':scope>div').forEach(d=>{d.style.margin='7px 0';d.querySelectorAll('span').forEach(s=>{s.style.minWidth='34px';s.style.padding='5px 7px';s.style.fontSize='14px'})});
-  viz.style.left='50%';viz.style.width='49%';viz.style.top='58px';viz.style.height='65%';
-  low.style.left='2%';low.style.right='2%';low.style.top='73%';low.style.bottom='54px';low.style.padding='6px 12px';low.style.fontSize='11px';
+  rows.style.left='1%';rows.style.width='48%';rows.style.top='58px';rows.style.height='calc(100% - 270px)';rows.style.overflow='hidden';rows.style.transform='none';rows.style.padding='4px 8px';
+  rows.querySelectorAll(':scope>div').forEach(d=>{d.style.margin='1px 0';d.style.lineHeight='1';d.querySelectorAll('span').forEach(s=>{s.style.minWidth='23px';s.style.padding='2px 3px';s.style.fontSize='10px'})});
+  viz.style.left='50%';viz.style.width='49%';viz.style.top='58px';viz.style.height='calc(100% - 270px)';
+  low.style.left='1%';low.style.right='1%';low.style.top='auto';low.style.height='150px';low.style.bottom='54px';low.style.padding='5px 10px';low.style.fontSize='10px';low.style.overflow='hidden';
+  const wave=p.querySelector('#pnWave');if(wave){wave.style.height='48px'}
+
  }else{
   p.dataset.layout='both';
+  rows.style.overflow='auto';
+  const wave=p.querySelector('#pnWave');if(wave){wave.style.height='62px'}
   rows.style.left='8px';rows.style.width='43%';rows.style.top='66px';rows.style.height='44%';rows.style.transform='scale(.88)';rows.style.transformOrigin='top left';rows.style.padding='6px';
   rows.querySelectorAll(':scope>div').forEach(d=>{d.style.margin='3px 0';d.querySelectorAll('span').forEach(s=>{s.style.minWidth='27px';s.style.padding='3px 5px';s.style.fontSize=''})});
   viz.style.left='43%';viz.style.width='57%';viz.style.top='58px';viz.style.height='42%';
