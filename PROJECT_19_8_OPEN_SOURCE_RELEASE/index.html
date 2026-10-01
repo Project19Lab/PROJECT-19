@@ -1,10 +1,13 @@
 <!doctype html><html lang='de'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>PROJECT 19.7 — Open Source Sacred Geometry 3D Lab</title><style>html,body{margin:0;height:100%;overflow:hidden;background:#070b12;color:#eef;font-family:system-ui,Segoe UI,Arial}#ui{position:absolute;z-index:5;top:12px;left:12px;width:350px;max-height:calc(100vh - 24px);overflow:auto;background:#101827e8;border:1px solid #334155;border-radius:14px;padding:14px;box-shadow:0 12px 30px #0008}h2{margin:0 0 8px;font-size:18px}.row{display:flex;gap:8px;align-items:center;margin:7px 0;flex-wrap:wrap}label{font-size:12px;color:#cbd5e1}button,select,input{accent-color:#7dd3fc}button,select{background:#182235;color:#eef;border:1px solid #475569;border-radius:8px;padding:6px 8px}button.active{outline:2px solid #7dd3fc}.tiny{font-size:11px;color:#94a3b8}#info{margin-top:8px;padding:8px;background:#09111f;border-radius:9px;font:12px ui-monospace,monospace;white-space:pre-line}canvas{display:block}</style><style>
-#pascalNative[data-layout="solo"] #pnRows{left:1%!important;width:48%!important;top:58px!important;height:calc(100vh - 270px)!important;overflow:hidden!important;padding:2px 6px!important}
-#pascalNative[data-layout="solo"] #pnRows>div{margin:0!important;line-height:.82!important;white-space:nowrap!important}
-#pascalNative[data-layout="solo"] #pnRows>div span{min-width:18px!important;padding:1px 2px!important;font-size:9px!important}
-#pascalNative[data-layout="solo"] #pnViz{left:50%!important;width:49%!important;top:58px!important;height:calc(100vh - 270px)!important}
-#pascalNative[data-layout="solo"] #pnLower{left:1%!important;right:1%!important;top:auto!important;height:150px!important;bottom:54px!important;overflow:hidden!important;padding:4px 9px!important}
-#pascalNative[data-layout="solo"] #pnWave{height:44px!important}
+#pascalNative[data-layout="solo"] #pnRows{left:.5%!important;width:58%!important;top:58px!important;height:calc(100vh - 318px)!important;overflow:hidden!important;padding:3px 5px!important}
+#pascalNative[data-layout="solo"] #pnRows>div{margin:1px 0!important;line-height:.9!important;white-space:nowrap!important}
+#pascalNative[data-layout="solo"] #pnRows>div span{min-width:21px!important;padding:2px 3px!important;font-size:10px!important}
+#pascalNative[data-layout="solo"] #pnViz{left:59%!important;width:40.5%!important;top:58px!important;height:calc(100vh - 318px)!important}
+#pascalNative[data-layout="solo"] #pnLower{left:.7%!important;right:.7%!important;top:auto!important;height:198px!important;bottom:54px!important;overflow:hidden!important;padding:7px 10px!important;font-size:11px!important}
+#pascalNative[data-layout="solo"] #pnWave{height:72px!important}
+#pascalNative[data-layout="solo"] #pnLower .row2{margin:5px 0!important}
+#pascalNative[data-layout="solo"] #pnLower button{padding:5px 9px!important}
+#pascalNative[data-layout="solo"] #pnFreqs{min-height:14px!important}
 </style><style>@media(max-width:780px){#ui{width:270px;max-height:55vh}#soundPanel{width:250px;bottom:8px;right:8px;max-height:30vh;overflow:auto}}</style></head><body><style>
 #p19portal{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 38%,#123047 0,#08121f 36%,#03070d 78%);color:#eef;transition:opacity .65s ease,visibility .65s ease;font-family:system-ui,Segoe UI,Arial;overflow:auto}
 #p19portal.hide{opacity:0;visibility:hidden;pointer-events:none}.p19stars{position:absolute;inset:0;opacity:.32;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:47px 47px;mask-image:linear-gradient(to bottom,#000,transparent)}
@@ -3966,7 +3969,7 @@ function ensurePascalPanel(){
  let p=document.getElementById('pascalNative');if(p)return p;
  p=document.createElement('div');p.id='pascalNative';
  p.style.cssText='display:none;position:fixed;z-index:5000;top:0;right:0;bottom:0;background:radial-gradient(circle at 50% 10%,#121a3c,#050713 55%);color:#eef2ff;border-left:1px solid #253056;font:13px system-ui,Segoe UI,sans-serif;overflow:hidden';
- p.innerHTML=`<div id="arm2Probe" style="position:absolute;z-index:9999;left:50%;transform:translateX(-50%);top:62px;background:#7c2d12;color:#fff;border:2px solid #facc15;border-radius:10px;padding:7px 13px;font:bold 13px system-ui">ARM 2 · 0–19 KOMPLETT · TEST</div><div style="height:58px;padding:10px 14px;border-bottom:1px solid #253056"><b>PROJECT 19 · ARM II · PASCAL 0–19D</b><div style="font-size:11px;color:#9aa7ca">Zahl → Dimension → rotierbare Projektion</div></div>
+ p.innerHTML=`<div style="height:58px;padding:10px 14px;border-bottom:1px solid #253056"><b>PROJECT 19 · ARM II · PASCAL 0–19D</b><div style="font-size:11px;color:#9aa7ca">Zahl → Dimension → rotierbare Projektion</div></div>
  <button id="pnBack" style="position:absolute;z-index:5;right:12px;top:12px">← ARM 1</button>
  <button id="pnBoth" style="position:absolute;z-index:5;right:88px;top:12px">BEIDE</button>
  <div id="pnRows" style="position:absolute;left:8px;width:43%;top:66px;height:44%;overflow:auto;padding:6px;transform:scale(.88);transform-origin:top left"></div>
@@ -4002,7 +4005,7 @@ function ensurePascalPanel(){
 function drawPascalViz(){
  const p=document.getElementById('pascalNative');if(!p)return;const cv=p.querySelector('#pnViz'),ctx=cv.getContext('2d'),d=devicePixelRatio||1,r=cv.getBoundingClientRect();
  if(r.width<2||r.height<2)return;cv.width=r.width*d;cv.height=r.height*d;ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,r.width,r.height);
- const N=pascalCur+1,cx=r.width/2,cy=r.height/2,R=Math.min(r.width,r.height)*(p.dataset.layout==='solo'?.43:.34),pts=[];
+ const N=pascalCur+1,cx=r.width/2,cy=r.height/2,R=Math.min(r.width,r.height)*(p.dataset.layout==='solo'?.46:.34),pts=[];
  for(let i=0;i<N;i++){let a=-Math.PI/2+i*Math.PI*2/N,x=Math.cos(a),y=Math.sin(a),z=.28*Math.sin(i*2.399+pascalCur);let c=Math.cos(pnYaw),s=Math.sin(pnYaw);[x,z]=[x*c+z*s,-x*s+z*c];c=Math.cos(pnPitch);s=Math.sin(pnPitch);[y,z]=[y*c-z*s,y*s+z*c];let q=1/(1-z*.22);pts.push([cx+x*R*q,cy+y*R*q,z])}
  for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){ctx.strokeStyle='rgba(103,232,249,.38)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pts[i][0],pts[i][1]);ctx.lineTo(pts[j][0],pts[j][1]);ctx.stroke()}
  pts.forEach((q,i)=>{ctx.fillStyle=i%2?'#a78bfa':'#facc15';ctx.beginPath();ctx.arc(q[0],q[1],N<7?6:3.5,0,Math.PI*2);ctx.fill()});
@@ -4046,11 +4049,11 @@ function layoutPascal(mode){
  const p=ensurePascalPanel(),rows=p.querySelector('#pnRows'),viz=p.querySelector('#pnViz'),low=p.querySelector('#pnLower');
  if(mode===2){
   p.dataset.layout='solo';
-  rows.style.left='1%';rows.style.width='48%';rows.style.top='58px';rows.style.height='calc(100% - 270px)';rows.style.overflow='hidden';rows.style.transform='none';rows.style.padding='4px 8px';
-  rows.querySelectorAll(':scope>div').forEach(d=>{d.style.margin='1px 0';d.style.lineHeight='1';d.querySelectorAll('span').forEach(s=>{s.style.minWidth='23px';s.style.padding='2px 3px';s.style.fontSize='10px'})});
-  viz.style.left='50%';viz.style.width='49%';viz.style.top='58px';viz.style.height='calc(100% - 270px)';
-  low.style.left='1%';low.style.right='1%';low.style.top='auto';low.style.height='150px';low.style.bottom='54px';low.style.padding='5px 10px';low.style.fontSize='10px';low.style.overflow='hidden';
-  const wave=p.querySelector('#pnWave');if(wave){wave.style.height='48px'}
+  rows.style.left='.5%';rows.style.width='58%';rows.style.top='58px';rows.style.height='calc(100% - 318px)';rows.style.overflow='hidden';rows.style.transform='none';rows.style.padding='3px 5px';
+  rows.querySelectorAll(':scope>div').forEach(d=>{d.style.margin='1px 0';d.style.lineHeight='.9';d.querySelectorAll('span').forEach(s=>{s.style.minWidth='21px';s.style.padding='2px 3px';s.style.fontSize='10px'})});
+  viz.style.left='59%';viz.style.width='40.5%';viz.style.top='58px';viz.style.height='calc(100% - 318px)';
+  low.style.left='.7%';low.style.right='.7%';low.style.top='auto';low.style.height='198px';low.style.bottom='54px';low.style.padding='7px 10px';low.style.fontSize='11px';low.style.overflow='hidden';
+  const wave=p.querySelector('#pnWave');if(wave){wave.style.height='72px'}
 
  }else{
   p.dataset.layout='both';
@@ -4065,7 +4068,7 @@ function layoutPascal(mode){
 }
 function setArmMode(mode){
  armMode=mode;const p=ensurePascalPanel();arm2Root.visible=false;sizeArmStage(mode);
- const ui=$('ui'),snd=document.getElementById('soundPanel'),a1probe=document.getElementById('arm1Probe');if(a1probe)a1probe.style.display=mode===1?'block':'none';
+ const ui=$('ui'),snd=document.getElementById('soundPanel');
  if(mode===1){root.position.x=0;root.visible=true;p.style.display='none';camera.position.set(5.7,4.4,6.8);if(ui)ui.style.display='block';if(snd)snd.style.display='block';}
  if(mode===2){root.visible=false;p.style.display='block';p.style.left='0';p.style.width='100%';layoutPascal(2);if(ui)ui.style.display='none';if(snd)snd.style.display='none';}
  if(mode===3){root.visible=true;root.position.x=0;p.style.display='block';p.style.left='50%';p.style.width='50%';layoutPascal(3);camera.position.set(5.7,4.4,6.8);if(ui){ui.style.display='block';ui.style.transform='scale(.82)';ui.style.transformOrigin='top left';ui.style.maxHeight='118vh'}if(snd){snd.style.display='none';}}
@@ -4124,7 +4127,6 @@ addEventListener('resize',()=>{sizeArmStage(armMode);requestAnimationFrame(drawP
 <style>
 #soundPanel{position:fixed;right:14px;bottom:14px;width:310px;background:rgba(8,12,24,.94);border:1px solid #42506b;border-radius:14px;padding:13px;color:#eef4ff;font-family:system-ui;z-index:20;box-shadow:0 8px 28px #0008}#soundPanel h3{margin:0 0 8px;font-size:15px}#soundPanel .r{display:flex;align-items:center;gap:7px;margin:6px 0}#soundPanel label{font-size:12px;min-width:74px}#soundPanel select,#soundPanel input[type=number]{background:#111a2c;color:#fff;border:1px solid #52617c;border-radius:7px;padding:5px;min-width:0}#soundPanel input[type=range]{width:120px}#soundPanel button{background:#17243b;color:#fff;border:1px solid #637493;border-radius:8px;padding:6px 9px;cursor:pointer}#soundPanel button.on{background:#7d2440}#soundPanel .hz{font-size:24px;font-weight:750;letter-spacing:.4px}#soundPanel .note{font-size:10px;line-height:1.3;color:#aebbd1}#soundPanel .oct{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}#soundPanel .oct button{padding:5px 2px}#soundPanel .mathbox{font-size:10px;line-height:1.35;color:#cbd5e1;background:#09111f;border:1px solid #334155;border-radius:7px;padding:6px;margin:5px 0}#arm1Wave{width:100%;height:48px;background:#050713;border:1px solid #334155;border-radius:7px}
 </style>
-<div id="arm1Probe" style="position:fixed;right:14px;top:58px;z-index:9999;background:#7c2d12;color:#fff;border:2px solid #facc15;border-radius:10px;padding:9px 14px;font:bold 14px system-ui">ARM 1 · MATHE + HARMONY · TEST</div>
 <div id="soundPanel">
 <h3>19.4 · GEOMETRY → SOUND</h3>
 <div class="r"><label>Körper</label><select id="sndBody"><option>Tetraeder</option><option>Würfel</option><option>Oktaeder</option><option>Dodekaeder</option><option>Ikosaeder</option></select></div>
