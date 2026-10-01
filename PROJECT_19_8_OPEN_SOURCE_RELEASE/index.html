@@ -3951,13 +3951,16 @@ const cubeBase=groups.Würfel.verts.map(v=>v.clone());const oct=groups.Oktaeder.
 // PROJECT 19 · ARM 2 COMPLETE MIRROR -------------------------------
 // Arm 2 is a live mirror of the COMPLETE Arm-1 geometry tree.
 // Geometry/material resources are shared, while transforms/visibility stay independent.
-const arm2Root=root.clone(true);scene.add(arm2Root);arm2Root.visible=false;arm2Root.scale.x=-1;
+const arm2Root=new THREE.Group();scene.add(arm2Root);arm2Root.visible=false;
 function syncArm2FromArm1(){
- // Clone only the complete CONTENT of Arm 1; world placement belongs to the view mode.
  while(arm2Root.children.length)arm2Root.remove(arm2Root.children[0]);
- root.children.forEach(ch=>arm2Root.add(ch.clone(true)));
- arm2Root.rotation.copy(root.rotation);
- arm2Root.scale.set(-1,1,1);
+ root.children.forEach(ch=>{
+  const copy=ch.clone(true);
+  copy.position.x*=-1;copy.rotation.y*=-1;copy.rotation.z*=-1;copy.scale.x*=-1;
+  arm2Root.add(copy);
+ });
+ arm2Root.rotation.set(root.rotation.x,-root.rotation.y,-root.rotation.z);
+ arm2Root.scale.set(1,1,1);
 }
 let armMode=1;
 function setArmMode(mode){
@@ -4012,7 +4015,7 @@ $('buildPrev').onclick=()=>seek((Math.ceil(buildT*8-1e-6)-1)/8);$('buildNext').o
 $('buildSpeed').oninput=e=>$('buildSpeedValue').textContent=(+e.target.value).toFixed(1)+'×';
 applyBuild();setArmMode(1);
 
-let last=performance.now();function anim(now){requestAnimationFrame(anim);let dt=(now-last)/1000;last=now;if(!paused){let a=.35*+speed.value*dt*dir;let ax=axis.value;if(ax==='X'||ax==='XYZ')root.rotation.x+=a*(ax==='XYZ'?.55:1);if(ax==='Y'||ax==='XYZ')root.rotation.y+=a*(ax==='XYZ'?.8:1);if(ax==='Z'||ax==='XYZ')root.rotation.z+=a*(ax==='XYZ'?.35:1);if(armMode!==1)arm2Root.rotation.copy(root.rotation)}updateBuild(dt);if(anchor && anchor.parent.visible)setInfo(anchor);else marker.visible=false;controls.update();renderer.render(scene,camera)}requestAnimationFrame(anim);
+let last=performance.now();function anim(now){requestAnimationFrame(anim);let dt=(now-last)/1000;last=now;if(!paused){let a=.35*+speed.value*dt*dir;let ax=axis.value;if(ax==='X'||ax==='XYZ')root.rotation.x+=a*(ax==='XYZ'?.55:1);if(ax==='Y'||ax==='XYZ')root.rotation.y+=a*(ax==='XYZ'?.8:1);if(ax==='Z'||ax==='XYZ')root.rotation.z+=a*(ax==='XYZ'?.35:1);if(armMode!==1)arm2Root.rotation.set(root.rotation.x,-root.rotation.y,-root.rotation.z)}updateBuild(dt);if(anchor && anchor.parent.visible)setInfo(anchor);else marker.visible=false;controls.update();renderer.render(scene,camera)}requestAnimationFrame(anim);
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 </script>
 <style>
