@@ -4035,12 +4035,25 @@ function sizeArmStage(mode){
  camera.aspect=viewW/innerHeight;camera.updateProjectionMatrix();
  renderer.setScissorTest(mode===3);if(mode===3){renderer.setViewport(uiW,0,viewW,innerHeight);renderer.setScissor(uiW,0,viewW,innerHeight)}else renderer.setViewport(0,0,innerWidth,innerHeight);
 }
+function layoutPascal(mode){
+ const p=ensurePascalPanel(),rows=p.querySelector('#pnRows'),viz=p.querySelector('#pnViz'),low=p.querySelector('#pnLower');
+ if(mode===2){
+  rows.style.left='2%';rows.style.width='46%';rows.style.top='66px';rows.style.height='62%';rows.style.transform='scale(1)';rows.style.padding='10px';
+  viz.style.left='49%';viz.style.width='50%';viz.style.top='58px';viz.style.height='60%';
+  low.style.left='2%';low.style.right='2%';low.style.top='70%';low.style.bottom='54px';low.style.padding='8px 12px';
+ }else{
+  rows.style.left='8px';rows.style.width='43%';rows.style.top='66px';rows.style.height='44%';rows.style.transform='scale(.88)';rows.style.transformOrigin='top left';rows.style.padding='6px';
+  viz.style.left='43%';viz.style.width='57%';viz.style.top='58px';viz.style.height='42%';
+  low.style.left='8px';low.style.right='8px';low.style.top='51%';low.style.bottom='54px';low.style.padding='8px';
+ }
+ requestAnimationFrame(drawPascalViz);
+}
 function setArmMode(mode){
  armMode=mode;const p=ensurePascalPanel();arm2Root.visible=false;sizeArmStage(mode);
  const ui=$('ui'),snd=document.getElementById('soundPanel');
  if(mode===1){root.position.x=0;root.visible=true;p.style.display='none';camera.position.set(5.7,4.4,6.8);if(ui)ui.style.display='block';if(snd)snd.style.display='block';}
- if(mode===2){root.visible=false;p.style.display='block';p.style.left='0';p.style.width='100%';if(ui)ui.style.display='none';if(snd)snd.style.display='none';}
- if(mode===3){root.visible=true;root.position.x=0;p.style.display='block';p.style.left='50%';p.style.width='50%';camera.position.set(5.7,4.4,6.8);if(ui){ui.style.display='block';ui.style.transform='scale(.82)';ui.style.transformOrigin='top left';ui.style.maxHeight='118vh'}if(snd){snd.style.display='none';}}
+ if(mode===2){root.visible=false;p.style.display='block';p.style.left='0';p.style.width='100%';layoutPascal(2);if(ui)ui.style.display='none';if(snd)snd.style.display='none';}
+ if(mode===3){root.visible=true;root.position.x=0;p.style.display='block';p.style.left='50%';p.style.width='50%';layoutPascal(3);camera.position.set(5.7,4.4,6.8);if(ui){ui.style.display='block';ui.style.transform='scale(.82)';ui.style.transformOrigin='top left';ui.style.maxHeight='118vh'}if(snd){snd.style.display='none';}}
  if(mode!==3&&ui){ui.style.transform='';ui.style.maxHeight='calc(100vh - 24px)'}
  controls.target.set(0,0,0);controls.update();requestAnimationFrame(drawPascalViz);
  $('arm1View').classList.toggle('active',mode===1);$('arm2View').classList.toggle('active',mode===2);$('bothArms').classList.toggle('active',mode===3);
