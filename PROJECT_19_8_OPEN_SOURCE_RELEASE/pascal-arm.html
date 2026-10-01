@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PROJECT 19 · ARM II · 20.3.3.1 PASCAL DIMENSION LAB</title>
+<style>
+:root{--bg:#050713;--panel:#0b1022;--line:#253056;--txt:#eef2ff;--muted:#9aa7ca;--hot:#8b5cf6;--cyan:#67e8f9;--gold:#facc15}
+*{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 50% 10%,#121a3c,#050713 55%);color:var(--txt);font:14px system-ui,Segoe UI,sans-serif;overflow:hidden}
+header{height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid var(--line);background:#070b18dd}
+h1{font-size:17px;margin:0;letter-spacing:.08em}.sub{color:var(--muted);font-size:11px}
+main{height:calc(100vh - 132px);display:grid;grid-template-columns:minmax(360px,46%) 1fr;gap:10px;padding:10px}
+.panel{position:relative;background:#080d1dcc;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.panelTitle{position:absolute;z-index:3;top:10px;left:12px;font-weight:700;letter-spacing:.08em;font-size:12px}.badge{color:var(--cyan)}
+#pascalWrap{position:absolute;inset:44px 8px 8px;overflow:auto;padding:12px}
+.row{display:flex;justify-content:center;gap:5px;min-width:max-content;margin:4px 0}
+.cell{min-width:30px;height:26px;padding:4px 6px;text-align:center;border:1px solid #27335d;border-radius:6px;background:#0c1430;color:#cbd5ff;transition:.25s}
+.cell.active{background:#4338ca;border-color:#a5b4fc;color:white;box-shadow:0 0 16px #6366f188}.cell.odd{color:#facc15}.cell.dim{outline:1px solid #67e8f9}
+#viz{width:100%;height:100%;display:block}.hud{position:absolute;left:12px;right:12px;bottom:12px;background:#060a17d9;border:1px solid #29345c;border-radius:10px;padding:10px;backdrop-filter:blur(6px)}
+.big{font-size:20px;font-weight:800}.math{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#dbeafe}
+footer{height:70px;border-top:1px solid var(--line);background:#070b18;padding:8px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+button,select,input{background:#101831;color:#eef2ff;border:1px solid #33416e;border-radius:7px;padding:6px 9px}button{cursor:pointer}button:hover,button.active{border-color:#818cf8;background:#252d62}
+input[type=range]{padding:0;width:120px}.sep{width:1px;height:32px;background:#29345c;margin:0 3px}.tiny{font-size:11px;color:var(--muted)}
+@media(max-width:800px){main{grid-template-columns:1fr;grid-template-rows:1fr 1fr}.panelTitle{font-size:10px}}
+
+#sideTools{position:absolute;z-index:8;right:12px;top:42px;width:min(330px,44%);display:flex;flex-direction:column;gap:7px}
+.toolbox{background:#060a17e8;border:1px solid #33416e;border-radius:10px;padding:8px;backdrop-filter:blur(7px)}
+.toolbox.hidden{display:none}.toolbox .row2{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin:5px 0}
+#harmWave{width:100%;height:58px;background:#050713;border:1px solid #253056;border-radius:7px}
+@media(max-width:800px){#sideTools{width:48%;font-size:10px}}
+</style></head>
+<body>
+<header><div><h1>PROJECT 19 · ARM II · 20.3.3</h1><div class="sub">PASCAL DIMENSION LAB · Zahl → Dimension → rotierbare Projektionsfläche</div></div><div class="badge">LUX ∞</div></header>
+<main>
+<section class="panel"><div class="panelTitle">PASCALSCHES DREIECK · ZEILEN 0–19</div><div id="pascalWrap"></div></section>
+<section class="panel"><div class="panelTitle">DIMENSIONS-REISE · SIMPLEX-PROJEKTION</div>
+<div id="sideTools">
+<div id="mathBox" class="toolbox hidden"><b>∑ MATHEMATIK · LIVE</b><div id="mathLive" class="tiny"></div></div>
+<div id="harmBox" class="toolbox hidden"><b>♫ PASCAL HARMONY</b>
+<div class="row2"><label>Grundton <input id="hBase" type="number" value="220" min="40" max="1000" style="width:65px"> Hz</label>
+<label>Vol <input id="hVol" type="range" min="0" max="100" value="35" style="width:80px"></label><span id="hVolTxt">35%</span></div>
+<div class="row2"><button id="hPlay">▶ DAUERTON ZEILE</button><button id="hStop">■</button><button id="hOct">1:2:4:8</button></div>
+<div id="hRead" class="tiny">Pascal-Werte werden auf Frequenzverhältnisse normalisiert.</div><canvas id="harmWave" width="300" height="58"></canvas></div>
+</div><canvas id="viz"></canvas>
+<div class="hud"><div id="dimTitle" class="big">0D · PUNKT</div><div id="dimText" class="tiny"></div><div id="formula" class="math"></div></div></section>
+</main>
+<footer>
+<button id="home">0D</button><button id="prev">◀</button><button id="play">▶ REISE</button><button id="stop">■</button><button id="loop">↻ LOOP</button><button id="next">▶</button>
+<div class="sep"></div><label>Dimension <select id="dim"></select></label>
+<label>Tempo <input id="speed" type="range" min="250" max="2200" step="50" value="900"></label>
+<div class="sep"></div><button id="mathToggle">∑ MATHE</button><button id="harmToggle">♫ HARMONY</button><button id="odd">UNGERADE</button><button id="sym">SYMMETRIE</button><button id="sum">2ⁿ</button>
+<div class="sep"></div>
+<label>Linien <input id="lineColor" type="color" value="#67e8f9" title="Linienfarbe" style="width:38px;height:30px;padding:2px"></label>
+<button id="lineCyan">CYAN</button>
+<button id="axisBtn">XYZ</button><button id="frontBtn">FRONT</button><button id="resetView">RESET</button>
+<span id="status" class="tiny"></span>
+</footer>
+<script>
+const MAX=19, wrap=document.getElementById('pascalWrap'), sel=document.getElementById('dim');
+const rows=[]; for(let n=0;n<=MAX;n++){let r=[];for(let k=0;k<=n;k++)r.push(k==0||k==n?1:rows[n-1][k-1]+rows[n-1][k]);rows.push(r)}
+for(let n=0;n<=MAX;n++){let d=document.createElement('div');d.className='row';d.dataset.n=n;rows[n].forEach((v,k)=>{let c=document.createElement('span');c.className='cell';c.dataset.k=k;c.textContent=v;d.appendChild(c)});wrap.appendChild(d);let o=document.createElement('option');o.value=n;o.textContent=n+'D';sel.appendChild(o)}
+let cur=0,timer=null,oddOn=false,symOn=false,sumOn=true,loopOn=false;
+const names=['PUNKT','STRECKE','DREIECK','TETRAEDER','4-SIMPLEX'];
+function C(n,k){return rows[n][k]}
+function update(){
+ sel.value=cur; document.querySelectorAll('.cell').forEach(x=>x.classList.remove('active','dim'));
+ let rr=document.querySelector(`.row[data-n="${cur}"]`); rr.querySelectorAll('.cell').forEach(x=>x.classList.add('active','dim')); rr.scrollIntoView({block:'center',behavior:'smooth'});
+ document.querySelectorAll('.cell').forEach(x=>x.classList.toggle('odd',oddOn && (+x.textContent%2===1)));
+ let title=cur<names.length?names[cur]:cur+'-SIMPLEX';
+ document.getElementById('dimTitle').textContent=`${cur}D · ${title}`;
+ let vertices=cur+1, edges=cur?C(cur+1,2):0;
+ document.getElementById('dimText').textContent=cur<=3?`Aufbau: ${vertices} Eckpunkt${vertices==1?'':'e'} · ${edges} Verbindung${edges==1?'':'en'}`:`${cur}D kann nicht direkt in 3D gesehen werden — gezeigt wird eine 2D-Projektion eines ${cur}-Simplex mit ${vertices} Eckpunkten.`;
+ document.getElementById('formula').textContent=`Pascal-Zeile ${cur}:  ${rows[cur].join('  ')}${sumOn?'     Σ = 2^'+cur+' = '+(2**cur):''}`;
+ document.getElementById('status').textContent=`Zeile ${cur} · Binomialkoeffizienten C(${cur},k)`;
+ updateMathPanel(); updateHarmonyRead(); draw();
+}
+const cv=document.getElementById('viz'),ctx=cv.getContext('2d');
+let yaw=0,pitch=0,roll=0,zoom=1,drag=false,lastX=0,lastY=0,axisOn=true;
+let lineRGB=[103,232,249];
+function setLineHex(hex){
+ const h=hex.replace('#','');
+ lineRGB=[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];
+ draw();
+}
+
+function rotate3(p){
+ let [x,y,z]=p,c=Math.cos(yaw),q=Math.sin(yaw);
+ [x,z]=[x*c+z*q,-x*q+z*c];
+ c=Math.cos(pitch);q=Math.sin(pitch);[y,z]=[y*c-z*q,y*q+z*c];
+ c=Math.cos(roll);q=Math.sin(roll);[x,y]=[x*c-y*q,x*q+y*c];
+ return [x,y,z];
+}
+function proj(p,cx,cy,R){
+ let [x,y,z]=rotate3(p), perspective=1/(1-z*.22);
+ return [cx+x*R*zoom*perspective,cy+y*R*zoom*perspective,z];
+}
+function patternPoints(){
+ let count=cur+1;
+ if(cur===0)return [[0,0,0]];
+ let pts=[];
+ for(let i=0;i<count;i++){
+   let a=-Math.PI/2+i*Math.PI*2/count;
+   let warp=1+0.10*Math.sin(i*2.399+cur);
+   pts.push([Math.cos(a)*warp,Math.sin(a)*warp,0]);
+ }
+ return pts;
+}
+function resize(){
+ let r=cv.getBoundingClientRect(),d=devicePixelRatio||1;
+ cv.width=r.width*d;cv.height=r.height*d;ctx.setTransform(d,0,0,d,0,0);draw();
+}
+function cornerAxes(){
+ if(!axisOn)return;
+ const ox=cv.clientWidth-54,oy=cv.clientHeight-48,L=25;
+ const dirs=[
+   [rotate3([1,0,0]),'#fb7185','X'],
+   [rotate3([0,-1,0]),'#4ade80','Y'],
+   [rotate3([0,0,1]),'#60a5fa','Z']
+ ];
+ ctx.font='10px system-ui';ctx.lineWidth=2;
+ dirs.sort((a,b)=>a[0][2]-b[0][2]).forEach(([v,col,label])=>{
+   ctx.strokeStyle=col;ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(ox,oy);
+   ctx.lineTo(ox+v[0]*L,oy+v[1]*L);ctx.stroke();
+   ctx.fillText(label,ox+v[0]*L*1.18-3,oy+v[1]*L*1.18+3);
+ });
+ ctx.fillStyle='#cbd5e1';ctx.beginPath();ctx.arc(ox,oy,2.5,0,Math.PI*2);ctx.fill();
+}
+function draw(){
+ let w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;
+ ctx.clearRect(0,0,w,h);
+ let cx=w/2,cy=h/2-18,R=Math.min(w,h)*.29;
+ let raw=patternPoints(),pts=raw.map(p=>proj(p,cx,cy,R));
+ let edges=[];
+ for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)edges.push([i,j,(pts[i][2]+pts[j][2])/2]);
+ edges.sort((a,b)=>a[2]-b[2]);
+ edges.forEach(([i,j,z])=>{
+   let depth=.42+(z+1)*.12;
+   ctx.strokeStyle=`rgba(${lineRGB[0]},${lineRGB[1]},${lineRGB[2]},${Math.max(.12,Math.min(.72,depth))})`;
+   ctx.lineWidth=Math.max(.6,1.15-cur*.018);
+   ctx.beginPath();ctx.moveTo(pts[i][0],pts[i][1]);ctx.lineTo(pts[j][0],pts[j][1]);ctx.stroke();
+ });
+ pts.map((p,i)=>[p,i]).sort((a,b)=>a[0][2]-b[0][2]).forEach(([p,i])=>{
+   ctx.fillStyle=i%2?'#a78bfa':'#facc15';
+   ctx.beginPath();ctx.arc(p[0],p[1],cur<5?6:Math.max(2.7,4.4-cur*.07),0,Math.PI*2);ctx.fill();
+ });
+ if(symOn&&cur>0){
+   let A=proj([0,-1.25,0],cx,cy,R),B=proj([0,1.25,0],cx,cy,R);
+   ctx.strokeStyle='#f472b6';ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(A[0],A[1]);ctx.lineTo(B[0],B[1]);ctx.stroke();ctx.setLineDash([]);
+ }
+ cornerAxes();
+}
+cv.addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX;lastY=e.clientY;cv.setPointerCapture(e.pointerId)});
+cv.addEventListener('pointermove',e=>{
+ if(!drag)return;
+ let dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;
+ yaw+=dx*.008;pitch+=dy*.008;draw();
+});
+cv.addEventListener('pointerup',()=>drag=false);
+cv.addEventListener('pointercancel',()=>drag=false);
+cv.addEventListener('wheel',e=>{
+ e.preventDefault();zoom*=Math.exp(-e.deltaY*.001);zoom=Math.max(.35,Math.min(3.4,zoom));draw();
+},{passive:false});
+function go(n){
+ n=Number(n);
+ if(!Number.isFinite(n))return;
+ cur=Math.max(0,Math.min(MAX,Math.round(n)));
+ update();
+ if(hDroneOn)startPascalDrone();
+}
+document.getElementById('home').onclick=()=>go(0);document.getElementById('prev').onclick=()=>go(cur-1);document.getElementById('next').onclick=()=>go(cur+1);sel.onchange=()=>go(+sel.value);
+function stopJourney(){if(timer!==null){clearInterval(timer);timer=null}}
+function journeyTick(){
+ if(cur>=MAX){
+   if(loopOn){go(0);return}
+   stopJourney();
+   document.getElementById('status').textContent=`Zeile ${MAX} · ENDE DER REISE · 19D`;
+   return;
+ }
+ const next=cur+1;
+ if(next<=MAX)go(next);
+}
+function startJourney(){
+ stopJourney();
+ if(cur>=MAX&&!loopOn){
+   document.getElementById('status').textContent=`Zeile ${MAX} · ENDE DER REISE · 19D`;
+   return;
+ }
+ timer=setInterval(journeyTick,Math.max(180,2300-document.getElementById('speed').value));
+}
+document.getElementById('play').onclick=startJourney;
+document.getElementById('loop').onclick=function(){loopOn=!loopOn;this.classList.toggle('active',loopOn)};
+document.getElementById('stop').onclick=()=>{stopJourney();document.getElementById('status').textContent+=` · ziehen = Muster drehen · Mausrad = Zoom`};
+document.getElementById('speed').oninput=()=>{if(timer)startJourney()};
+document.getElementById('odd').onclick=function(){oddOn=!oddOn;this.classList.toggle('active',oddOn);update()};
+document.getElementById('sym').onclick=function(){symOn=!symOn;this.classList.toggle('active',symOn);draw()};
+document.getElementById('sum').onclick=function(){sumOn=!sumOn;this.classList.toggle('active',sumOn);update()};
+document.getElementById('axisBtn').onclick=function(){axisOn=!axisOn;this.classList.toggle('active',axisOn);draw()};
+document.getElementById('lineColor').oninput=function(){setLineHex(this.value)};
+document.getElementById('lineCyan').onclick=()=>{document.getElementById('lineColor').value='#67e8f9';setLineHex('#67e8f9')};
+document.getElementById('frontBtn').onclick=()=>{yaw=0;pitch=0;roll=0;draw()};
+document.getElementById('resetView').onclick=()=>{yaw=0;pitch=0;roll=0;zoom=1;draw()};
+
+let mathShown=false,harmShown=false;
+function updateMathPanel(){
+ const r=rows[cur], total=r.reduce((a,b)=>a+b,0), odd=r.filter(x=>x%2).length;
+ let txt=`<div class="math">C(${cur},k): ${r.join(' · ')}</div>`;
+ txt+=`<div>Zeilensumme: Σ = ${total} = 2<sup>${cur}</sup></div>`;
+ txt+=`<div>Symmetrie: C(n,k) = C(n,n−k)</div>`;
+ txt+=`<div>Ungerade Einträge: ${odd} von ${r.length}</div>`;
+ if(cur>=1)txt+=`<div>${cur}-Simplex: Eckpunkte = ${cur+1}, Kanten = C(${cur+1},2) = ${C(cur+1,2)}</div>`;
+ if(cur>=2)txt+=`<div>Dreiecksflächen = C(${cur+1},3) = ${C(cur+1,3)}</div>`;
+ if(cur>=3)txt+=`<div>Tetraeder-Zellen = C(${cur+1},4) = ${C(cur+1,4)}</div>`;
+ document.getElementById('mathLive').innerHTML=txt;
+}
+document.getElementById('mathToggle').onclick=function(){mathShown=!mathShown;document.getElementById('mathBox').classList.toggle('hidden',!mathShown);this.classList.toggle('active',mathShown);updateMathPanel()};
+document.getElementById('harmToggle').onclick=function(){harmShown=!harmShown;document.getElementById('harmBox').classList.toggle('hidden',!harmShown);this.classList.toggle('active',harmShown)};
+
+const AC=window.AudioContext||window.webkitAudioContext;
+let ac=null,hVoices=[],hMaster=null,hDroneOn=false,wavePhase=0,waveRatios=[1];
+
+function ensureAudio(){
+ if(!AC)return false;
+ ac=ac||new AC();
+ if(ac.state==='suspended')ac.resume();
+ if(!hMaster){
+   hMaster=ac.createGain();
+   hMaster.gain.value=(+document.getElementById('hVol').value/100)*.055;
+   hMaster.connect(ac.destination);
+ }
+ return true;
+}
+function hStop(){
+ hDroneOn=false;
+ hVoices.forEach(v=>{try{v.g.gain.cancelScheduledValues(ac.currentTime);v.g.gain.setTargetAtTime(.0001,ac.currentTime,.035);v.o.stop(ac.currentTime+.22)}catch(e){}});
+ hVoices=[];
+ document.getElementById('hPlay').classList.remove('active');
+}
+function startPascalDrone(){
+ if(!ensureAudio())return;
+ // rebuild a sustained chord/drone from the current Pascal row.
+ hVoices.forEach(v=>{try{v.o.stop()}catch(e){}});
+ hVoices=[];
+ let b=Math.max(40,+document.getElementById('hBase').value||220),rs=pascalRatios();
+ // Limit simultaneous oscillators for high dimensions while preserving the row shape.
+ let chosen=rs.length<=8?rs:rs.filter((_,i)=>i===0||i===rs.length-1||i%Math.ceil(rs.length/7)===0).slice(0,8);
+ waveRatios=chosen;
+ chosen.forEach((r,i)=>{
+   let o=ac.createOscillator(),g=ac.createGain();
+   o.type=i%3===0?'sine':'triangle';
+   o.frequency.value=b*r;
+   g.gain.setValueAtTime(.0001,ac.currentTime);
+   g.gain.linearRampToValueAtTime(1/Math.sqrt(chosen.length),ac.currentTime+.35);
+   o.connect(g).connect(hMaster);o.start();
+   hVoices.push({o,g});
+ });
+ hDroneOn=true;
+ document.getElementById('hPlay').classList.add('active');
+ document.getElementById('hRead').textContent=`DAUERTON · Zeile ${cur} · ${chosen.length} Stimmen · ${chosen.map(r=>(b*r).toFixed(1)+' Hz').join(' · ')}`;
+}
+function hTone(f,d=.8){
+ if(!ensureAudio())return;
+ let o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=f;
+ g.gain.setValueAtTime(.0001,ac.currentTime);g.gain.linearRampToValueAtTime(.7,ac.currentTime+.04);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+d);
+ o.connect(g).connect(hMaster);o.start();o.stop(ac.currentTime+d+.03);
+}
+function pascalRatios(){
+ let r=rows[cur]||rows[MAX]||[1],m=Math.max(...r);
+ return r.map(x=>1+x/m).slice(0,12);
+}
+function updateHarmonyRead(){if(!document.getElementById('hRead'))return;let rs=pascalRatios();waveRatios=rs;document.getElementById('hRead').textContent=`Zeile ${cur}: normierte Verhältnisse ${rs.map(x=>x.toFixed(3)).join(' · ')}`;}
+document.getElementById('hPlay').onclick=()=>{if(hDroneOn)hStop();else startPascalDrone()};
+document.getElementById('hStop').onclick=hStop;
+document.getElementById('hOct').onclick=()=>{hStop();let b=Math.max(40,+document.getElementById('hBase').value||220);waveRatios=[1,2,4,8];setTimeout(()=>[1,2,4,8].forEach((r,i)=>setTimeout(()=>hTone(b*r,.9),i*150)),240);document.getElementById('hRead').textContent='Oktaven: 1 : 2 : 4 : 8'};
+document.getElementById('hVol').oninput=function(){document.getElementById('hVolTxt').textContent=this.value+'%';if(hMaster&&ac)hMaster.gain.setTargetAtTime((+this.value/100)*.055,ac.currentTime,.03)};
+document.getElementById('hBase').onchange=()=>{if(hDroneOn)startPascalDrone()};
+(function animateHarmony(){let c=document.getElementById('harmWave'),x=c.getContext('2d'),w=c.width,h=c.height;x.clearRect(0,0,w,h);let cols=['#67e8f9','#a78bfa','#facc15','#4ade80','#fb7185'];waveRatios.slice(0,5).forEach((r,j)=>{x.strokeStyle=cols[j];x.beginPath();for(let px=0;px<w;px++){let py=h/2+Math.sin(px/w*Math.PI*4*r+wavePhase+j*.4)*(7+j*1.3);px?x.lineTo(px,py):x.moveTo(px,py)}x.stroke()});wavePhase+=.055;requestAnimationFrame(animateHarmony)})();
+
+resize();update();document.getElementById('sum').classList.add('active');document.getElementById('axisBtn').classList.add('active');
+</script></body></html>
