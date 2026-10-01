@@ -3954,33 +3954,49 @@ const arm2Root=new THREE.Group();scene.add(arm2Root);arm2Root.visible=false;
 let armMode=1,pascalCur=0,pascalTimer=null;
 const pascalRows=[];
 for(let n=0;n<=19;n++){let r=[];for(let k=0;k<=n;k++)r.push(k===0||k===n?1:pascalRows[n-1][k-1]+pascalRows[n-1][k]);pascalRows.push(r)}
+let pnYaw=0,pnPitch=0,pnDrag=false,pnLastX=0,pnLastY=0;
 function ensurePascalPanel(){
- let p=document.getElementById('pascalNative');
- if(p)return p;
+ let p=document.getElementById('pascalNative');if(p)return p;
  p=document.createElement('div');p.id='pascalNative';
  p.style.cssText='display:none;position:fixed;z-index:5000;top:0;right:0;bottom:0;background:radial-gradient(circle at 50% 10%,#121a3c,#050713 55%);color:#eef2ff;border-left:1px solid #253056;font:13px system-ui,Segoe UI,sans-serif;overflow:hidden';
- p.innerHTML=`<div style="height:58px;padding:10px 14px;border-bottom:1px solid #253056"><b>PROJECT 19 · ARM II · PASCAL 0–19D</b><div style="font-size:11px;color:#9aa7ca">Zahl → Dimension → Struktur · native Offline-Version</div></div>
- <div id="pnRows" style="position:absolute;left:8px;right:8px;top:66px;bottom:122px;overflow:auto;padding:8px"></div>
- <div style="position:absolute;left:10px;right:10px;bottom:58px;padding:8px;background:#080d1ddd;border:1px solid #253056;border-radius:9px"><b id="pnTitle">0D · PUNKT</b><div id="pnMath" style="font-size:11px;color:#cbd5ff;margin-top:4px"></div></div>
- <div style="position:absolute;left:0;right:0;bottom:0;height:52px;padding:8px;border-top:1px solid #253056;background:#070b18;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
- <button id="pnPrev">◀</button><button id="pnPlay">▶ REISE</button><button id="pnStop">■</button><button id="pnNext">▶</button><span id="pnStatus" style="font-size:11px;color:#9aa7ca"></span></div>`;
+ p.innerHTML=`<div style="height:58px;padding:10px 14px;border-bottom:1px solid #253056"><b>PROJECT 19 · ARM II · PASCAL 0–19D</b><div style="font-size:11px;color:#9aa7ca">Zahl → Dimension → rotierbare Projektion</div></div>
+ <button id="pnBack" style="position:absolute;z-index:5;right:12px;top:12px">← ARM 1</button>
+ <button id="pnBoth" style="position:absolute;z-index:5;right:88px;top:12px">BEIDE</button>
+ <div id="pnRows" style="position:absolute;left:8px;width:45%;top:66px;bottom:122px;overflow:auto;padding:8px"></div>
+ <canvas id="pnViz" style="position:absolute;left:46%;right:0;top:58px;bottom:110px;width:54%;height:calc(100% - 168px)"></canvas>
+ <div style="position:absolute;left:46%;right:10px;bottom:58px;padding:8px;background:#080d1ddd;border:1px solid #253056;border-radius:9px"><b id="pnTitle">0D · PUNKT</b><div id="pnMath" style="font-size:11px;color:#cbd5ff;margin-top:4px"></div></div>
+ <div style="position:absolute;left:0;right:0;bottom:0;height:52px;padding:8px;border-top:1px solid #253056;background:#070b18;display:flex;gap:6px;align-items:center">
+ <button id="pnPrev">◀</button><button id="pnPlay">▶ REISE</button><button id="pnStop">■</button><button id="pnNext">▶</button><button id="pnReset">RESET ANSICHT</button><span id="pnStatus" style="font-size:11px;color:#9aa7ca"></span></div>`;
  document.body.appendChild(p);
  const w=p.querySelector('#pnRows');
  pascalRows.forEach((r,n)=>{const d=document.createElement('div');d.dataset.n=n;d.style.cssText='display:flex;justify-content:center;gap:4px;margin:3px 0;min-width:max-content';r.forEach(v=>{const s=document.createElement('span');s.textContent=v;s.style.cssText='min-width:27px;padding:3px 5px;text-align:center;border:1px solid #27335d;border-radius:5px;background:#0c1430;color:#cbd5ff';d.appendChild(s)});w.appendChild(d)});
- p.querySelector('#pnPrev').onclick=()=>setPascal(pascalCur-1);
- p.querySelector('#pnNext').onclick=()=>setPascal(pascalCur+1);
+ p.querySelector('#pnPrev').onclick=()=>setPascal(pascalCur-1);p.querySelector('#pnNext').onclick=()=>setPascal(pascalCur+1);
  p.querySelector('#pnStop').onclick=()=>{clearInterval(pascalTimer);pascalTimer=null};
  p.querySelector('#pnPlay').onclick=()=>{clearInterval(pascalTimer);pascalTimer=setInterval(()=>{if(pascalCur>=19){clearInterval(pascalTimer);pascalTimer=null;return}setPascal(pascalCur+1)},700)};
+ p.querySelector('#pnBack').onclick=()=>setArmMode(1);p.querySelector('#pnBoth').onclick=()=>setArmMode(3);
+ p.querySelector('#pnReset').onclick=()=>{pnYaw=0;pnPitch=0;drawPascalViz()};
+ const cv=p.querySelector('#pnViz');
+ cv.onpointerdown=e=>{pnDrag=true;pnLastX=e.clientX;pnLastY=e.clientY;cv.setPointerCapture(e.pointerId)};
+ cv.onpointermove=e=>{if(!pnDrag)return;pnYaw+=(e.clientX-pnLastX)*.008;pnPitch+=(e.clientY-pnLastY)*.008;pnLastX=e.clientX;pnLastY=e.clientY;drawPascalViz()};
+ cv.onpointerup=()=>pnDrag=false;cv.onpointercancel=()=>pnDrag=false;
  setPascal(0);return p;
+}
+function drawPascalViz(){
+ const p=document.getElementById('pascalNative');if(!p)return;const cv=p.querySelector('#pnViz'),ctx=cv.getContext('2d'),d=devicePixelRatio||1,r=cv.getBoundingClientRect();
+ if(r.width<2||r.height<2)return;cv.width=r.width*d;cv.height=r.height*d;ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,r.width,r.height);
+ const N=pascalCur+1,cx=r.width/2,cy=r.height/2,R=Math.min(r.width,r.height)*.34,pts=[];
+ for(let i=0;i<N;i++){let a=-Math.PI/2+i*Math.PI*2/N,x=Math.cos(a),y=Math.sin(a),z=.28*Math.sin(i*2.399+pascalCur);let c=Math.cos(pnYaw),s=Math.sin(pnYaw);[x,z]=[x*c+z*s,-x*s+z*c];c=Math.cos(pnPitch);s=Math.sin(pnPitch);[y,z]=[y*c-z*s,y*s+z*c];let q=1/(1-z*.22);pts.push([cx+x*R*q,cy+y*R*q,z])}
+ for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){ctx.strokeStyle='rgba(103,232,249,.38)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pts[i][0],pts[i][1]);ctx.lineTo(pts[j][0],pts[j][1]);ctx.stroke()}
+ pts.forEach((q,i)=>{ctx.fillStyle=i%2?'#a78bfa':'#facc15';ctx.beginPath();ctx.arc(q[0],q[1],N<7?6:3.5,0,Math.PI*2);ctx.fill()});
+ ctx.fillStyle='#9aa7ca';ctx.font='11px system-ui';ctx.fillText('ziehen = drehen · '+pascalCur+'D Projektion',12,18);
 }
 function setPascal(n){
  pascalCur=Math.max(0,Math.min(19,n));const p=ensurePascalPanel(),r=pascalRows[pascalCur];
  p.querySelectorAll('#pnRows>div').forEach(d=>{const on=+d.dataset.n===pascalCur;d.querySelectorAll('span').forEach(s=>{s.style.background=on?'#4338ca':'#0c1430';s.style.borderColor=on?'#a5b4fc':'#27335d';s.style.color=on?'white':'#cbd5ff'})});
  const row=p.querySelector('#pnRows>div[data-n="'+pascalCur+'"]');if(row)row.scrollIntoView({block:'center'});
- const names=['PUNKT','STRECKE','DREIECK','TETRAEDER','4-SIMPLEX'];
- p.querySelector('#pnTitle').textContent=pascalCur+'D · '+(names[pascalCur]||pascalCur+'-SIMPLEX');
+ const names=['PUNKT','STRECKE','DREIECK','TETRAEDER','4-SIMPLEX'];p.querySelector('#pnTitle').textContent=pascalCur+'D · '+(names[pascalCur]||pascalCur+'-SIMPLEX');
  p.querySelector('#pnMath').textContent='Pascal-Zeile '+pascalCur+': '+r.join(' · ')+'   |   Σ = 2^'+pascalCur+' = '+(2**pascalCur);
- p.querySelector('#pnStatus').textContent='Zeile '+pascalCur+' · C('+pascalCur+',k)';
+ p.querySelector('#pnStatus').textContent='Zeile '+pascalCur+' · C('+pascalCur+',k)';requestAnimationFrame(drawPascalViz);
 }
 function setArmMode(mode){
  armMode=mode;const p=ensurePascalPanel();arm2Root.visible=false;
