@@ -3995,7 +3995,7 @@ function ensurePascalPanel(){
 function drawPascalViz(){
  const p=document.getElementById('pascalNative');if(!p)return;const cv=p.querySelector('#pnViz'),ctx=cv.getContext('2d'),d=devicePixelRatio||1,r=cv.getBoundingClientRect();
  if(r.width<2||r.height<2)return;cv.width=r.width*d;cv.height=r.height*d;ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,r.width,r.height);
- const N=pascalCur+1,cx=r.width/2,cy=r.height/2,R=Math.min(r.width,r.height)*.34,pts=[];
+ const N=pascalCur+1,cx=r.width/2,cy=r.height/2,R=Math.min(r.width,r.height)*(p.dataset.layout==='solo'?.43:.34),pts=[];
  for(let i=0;i<N;i++){let a=-Math.PI/2+i*Math.PI*2/N,x=Math.cos(a),y=Math.sin(a),z=.28*Math.sin(i*2.399+pascalCur);let c=Math.cos(pnYaw),s=Math.sin(pnYaw);[x,z]=[x*c+z*s,-x*s+z*c];c=Math.cos(pnPitch);s=Math.sin(pnPitch);[y,z]=[y*c-z*s,y*s+z*c];let q=1/(1-z*.22);pts.push([cx+x*R*q,cy+y*R*q,z])}
  for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){ctx.strokeStyle='rgba(103,232,249,.38)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pts[i][0],pts[i][1]);ctx.lineTo(pts[j][0],pts[j][1]);ctx.stroke()}
  pts.forEach((q,i)=>{ctx.fillStyle=i%2?'#a78bfa':'#facc15';ctx.beginPath();ctx.arc(q[0],q[1],N<7?6:3.5,0,Math.PI*2);ctx.fill()});
@@ -4038,13 +4038,17 @@ function sizeArmStage(mode){
 function layoutPascal(mode){
  const p=ensurePascalPanel(),rows=p.querySelector('#pnRows'),viz=p.querySelector('#pnViz'),low=p.querySelector('#pnLower');
  if(mode===2){
-  rows.style.left='2%';rows.style.width='46%';rows.style.top='66px';rows.style.height='62%';rows.style.transform='scale(1)';rows.style.padding='10px';
-  viz.style.left='49%';viz.style.width='50%';viz.style.top='58px';viz.style.height='60%';
-  low.style.left='2%';low.style.right='2%';low.style.top='70%';low.style.bottom='54px';low.style.padding='8px 12px';
+  p.dataset.layout='solo';
+  rows.style.left='1%';rows.style.width='48%';rows.style.top='62px';rows.style.height='66%';rows.style.transform='none';rows.style.padding='12px';
+  rows.querySelectorAll(':scope>div').forEach(d=>{d.style.margin='7px 0';d.querySelectorAll('span').forEach(s=>{s.style.minWidth='34px';s.style.padding='5px 7px';s.style.fontSize='14px'})});
+  viz.style.left='50%';viz.style.width='49%';viz.style.top='58px';viz.style.height='65%';
+  low.style.left='2%';low.style.right='2%';low.style.top='73%';low.style.bottom='54px';low.style.padding='6px 12px';low.style.fontSize='11px';
  }else{
+  p.dataset.layout='both';
   rows.style.left='8px';rows.style.width='43%';rows.style.top='66px';rows.style.height='44%';rows.style.transform='scale(.88)';rows.style.transformOrigin='top left';rows.style.padding='6px';
+  rows.querySelectorAll(':scope>div').forEach(d=>{d.style.margin='3px 0';d.querySelectorAll('span').forEach(s=>{s.style.minWidth='27px';s.style.padding='3px 5px';s.style.fontSize=''})});
   viz.style.left='43%';viz.style.width='57%';viz.style.top='58px';viz.style.height='42%';
-  low.style.left='8px';low.style.right='8px';low.style.top='51%';low.style.bottom='54px';low.style.padding='8px';
+  low.style.left='8px';low.style.right='8px';low.style.top='51%';low.style.bottom='54px';low.style.padding='8px';low.style.fontSize='';
  }
  requestAnimationFrame(drawPascalViz);
 }
