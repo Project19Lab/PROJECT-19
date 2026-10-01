@@ -3952,8 +3952,10 @@ const cubeBase=groups.Würfel.verts.map(v=>v.clone());const oct=groups.Oktaeder.
 // Arm 2 is a live mirror of the COMPLETE Arm-1 geometry tree.
 // Geometry/material resources are shared, while transforms/visibility stay independent.
 const arm2Root=new THREE.Group();scene.add(arm2Root);arm2Root.visible=false;
+const arm2Debug=new THREE.Mesh(new THREE.IcosahedronGeometry(.45,1),new THREE.MeshBasicMaterial({color:0xff00ff,wireframe:true}));
+arm2Debug.name='ARM2_DEBUG';arm2Root.add(arm2Debug);
 function syncArm2FromArm1(){
- while(arm2Root.children.length)arm2Root.remove(arm2Root.children[0]);
+ arm2Root.children.slice().filter(ch=>ch!==arm2Debug).forEach(ch=>arm2Root.remove(ch));
  root.children.forEach(ch=>{
   const copy=ch.clone(true);
   copy.position.x*=-1;copy.rotation.y*=-1;copy.rotation.z*=-1;copy.scale.x*=-1;
@@ -3966,7 +3968,7 @@ let armMode=1;
 function setArmMode(mode){
  armMode=mode;syncArm2FromArm1();
  if(mode===1){root.position.x=0;root.visible=true;arm2Root.visible=false;camera.position.set(5.7,4.4,6.8);}
- if(mode===2){root.visible=false;arm2Root.visible=true;arm2Root.position.x=0;camera.position.set(-5.7,4.4,6.8);}
+ if(mode===2){root.visible=false;arm2Root.visible=true;arm2Root.position.set(0,0,0);camera.position.set(5.7,4.4,6.8);}
  if(mode===3){root.visible=true;arm2Root.visible=true;root.position.x=-2.7;arm2Root.position.x=2.7;camera.position.set(8.8,6.2,10.8);}
  controls.target.set(0,0,0);controls.update();
  $('arm1View').classList.toggle('active',mode===1);$('arm2View').classList.toggle('active',mode===2);$('bothArms').classList.toggle('active',mode===3);
