@@ -3955,6 +3955,68 @@ const renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setPixelRatio
 const controls=new OrbitControls(camera,renderer.domElement); controls.enableDamping=true;
 scene.add(new THREE.AmbientLight(0xffffff,1.2)); const dl=new THREE.DirectionalLight(0xffffff,2);dl.position.set(4,6,5);scene.add(dl);
 const root=new THREE.Group();scene.add(root);
+
+// PROJECT 19.10 — Cosmic Cube Lab environment
+// A real 3D room around the geometry: perspective grid + luminous frame + subtle starfield.
+// It is visual-only and never participates in picking or controls.
+const labEnvironment=new THREE.Group();
+labEnvironment.name='PROJECT19_COSMIC_CUBE_LAB';
+scene.add(labEnvironment);
+
+const LAB=22, HALF=LAB/2, DIV=22;
+const gridMatColor=0x4f8cff;
+function labGrid(size=LAB,div=DIV){
+  const g=new THREE.GridHelper(size,div,gridMatColor,0x244d8f);
+  const mats=Array.isArray(g.material)?g.material:[g.material];
+  mats.forEach(m=>{m.transparent=true;m.opacity=.115;m.depthWrite=false;m.depthTest=true;});
+  g.renderOrder=-20;
+  return g;
+}
+// PROJECT 19.10 depth-room fix:
+// The room is camera-locked, so OrbitControls rotate the geometry while the laboratory
+// keeps a calm, straight vanishing point. There is deliberately NO front grid.
+scene.remove(labEnvironment);
+scene.add(camera);
+camera.add(labEnvironment);
+labEnvironment.position.set(0,0,-HALF*1.08);
+labEnvironment.rotation.set(0,0,0);
+
+// floor / ceiling
+const floorGrid=labGrid(); floorGrid.position.y=-HALF; labEnvironment.add(floorGrid);
+const ceilingGrid=labGrid(); ceilingGrid.position.y=HALF; ceilingGrid.rotation.z=Math.PI; labEnvironment.add(ceilingGrid);
+// back wall only — an open front makes the viewer look INTO the cube
+const backGrid=labGrid(); backGrid.position.z=-HALF; backGrid.rotation.x=Math.PI/2; labEnvironment.add(backGrid);
+// left / right walls
+const leftGrid=labGrid(); leftGrid.position.x=-HALF; leftGrid.rotation.z=Math.PI/2; labEnvironment.add(leftGrid);
+const rightGrid=labGrid(); rightGrid.position.x=HALF; rightGrid.rotation.z=Math.PI/2; labEnvironment.add(rightGrid);
+
+// luminous outer cube frame
+const roomEdges=new THREE.LineSegments(
+  new THREE.EdgesGeometry(new THREE.BoxGeometry(LAB,LAB,LAB)),
+  new THREE.LineBasicMaterial({color:0xa9d5ff,transparent:true,opacity:.34,depthWrite:false})
+);
+roomEdges.renderOrder=-19; labEnvironment.add(roomEdges);
+// secondary inner frame gives the deep "cube inside cube" perspective from the concept image
+const innerEdges=new THREE.LineSegments(
+  new THREE.EdgesGeometry(new THREE.BoxGeometry(LAB*.58,LAB*.58,LAB*.58)),
+  new THREE.LineBasicMaterial({color:0x6aa7ff,transparent:true,opacity:.16,depthWrite:false})
+);
+innerEdges.renderOrder=-19; labEnvironment.add(innerEdges);
+
+// deterministic subtle stars — no textures / network requests
+const starCount=1100, starPos=new Float32Array(starCount*3);
+let starSeed=19010;
+function starRand(){starSeed=(starSeed*1664525+1013904223)>>>0;return starSeed/4294967296;}
+for(let i=0;i<starCount;i++){
+  const r=HALF*.92;
+  starPos[i*3]=(starRand()*2-1)*r;
+  starPos[i*3+1]=(starRand()*2-1)*r;
+  starPos[i*3+2]=(starRand()*2-1)*r;
+}
+const starGeo=new THREE.BufferGeometry();starGeo.setAttribute('position',new THREE.BufferAttribute(starPos,3));
+const stars=new THREE.Points(starGeo,new THREE.PointsMaterial({color:0xc8e4ff,size:.022,transparent:true,opacity:.34,depthWrite:false,sizeAttenuation:true}));
+stars.renderOrder=-21;labEnvironment.add(stars);
+
 const axes=new THREE.AxesHelper(3.8);scene.add(axes);
 const defs=[['Tetraeder',THREE.TetrahedronGeometry,1.35,0xffd166],['Würfel',THREE.BoxGeometry,2.0,0x60a5fa],['Oktaeder',THREE.OctahedronGeometry,1.55,0xf472b6],['Dodekaeder',THREE.DodecahedronGeometry,1.9,0x34d399],['Ikosaeder',THREE.IcosahedronGeometry,2.15,0xa78bfa]];
 const groups={},pickables=[]; const defaultColors={};
