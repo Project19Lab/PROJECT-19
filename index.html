@@ -6230,23 +6230,40 @@ button, a, div, [role="button"]{}
 (function(){
  let ac=null,osc=null,gain=null,playing=false;
 
+ const psI18n={
+   de:{title:'🔊 PASCAL → SCHWINGUNG',unit:'Zahl / Hz',listen:'▶ HÖREN',audible:'hörbar',desc:'Pascal-Zahl direkt als Frequenz eingeben. Werte über 20.000 Hz werden für hörbare Wiedergabe oktaviert (÷2), während der Originalwert angezeigt bleibt.'},
+   en:{title:'🔊 PASCAL → VIBRATION',unit:'Number / Hz',listen:'▶ LISTEN',audible:'audible',desc:'Enter the Pascal number directly as a frequency. Values above 20,000 Hz are octave-shifted (÷2) for audible playback while the original value remains displayed.'},
+   it:{title:'🔊 PASCAL → VIBRAZIONE',unit:'Numero / Hz',listen:'▶ ASCOLTA',audible:'udibile',desc:'Inserisci il numero di Pascal direttamente come frequenza. I valori superiori a 20.000 Hz vengono trasposti per ottave (÷2) per la riproduzione udibile, mentre il valore originale resta visualizzato.'},
+   tr:{title:'🔊 PASCAL → TİTREŞİM',unit:'Sayı / Hz',listen:'▶ DİNLE',audible:'duyulabilir',desc:'Pascal sayısını doğrudan frekans olarak girin. 20.000 Hz üzerindeki değerler duyulabilir çalma için oktavlanır (÷2); özgün değer ekranda kalır.'}
+ };
+ function lang(){return localStorage.getItem('p19lang')||document.documentElement.lang||'de'}
+ function L(){return psI18n[lang()]||psI18n.de}
+
  function findHarmony(){
    const all=[...document.querySelectorAll('body *')];
    return all.find(e=>(e.textContent||'').trim().toUpperCase()==='♫ PASCAL HARMONY') ||
           all.find(e=>(e.textContent||'').toUpperCase().includes('PASCAL HARMONY'));
  }
+ function applyText(){
+   const p=document.getElementById('p19PascalSoundPanel'); if(!p)return;
+   const l=L();
+   const t=p.querySelector('[data-ps="title"]'),u=p.querySelector('[data-ps="unit"]'),d=p.querySelector('[data-ps="desc"]'),play=document.getElementById('p19PascalPlay');
+   if(t)t.textContent=l.title;if(u)u.textContent=l.unit;if(d)d.textContent=l.desc;
+   if(play)play.textContent=playing?'■ STOP':l.listen;
+   const input=document.getElementById('p19PascalHz'),read=document.getElementById('p19PascalRead');
+   if(input&&read){let raw=Math.max(.01,+input.value||432),f=audible(raw);read.textContent=raw.toFixed(2)+' Hz → '+l.audible+' '+f.toFixed(2)+' Hz'}
+ }
  function ensure(){
-   if(document.getElementById('p19PascalSoundPanel'))return;
+   if(document.getElementById('p19PascalSoundPanel')){applyText();return}
    const title=findHarmony(); if(!title)return;
    const host=title.parentElement; if(!host)return;
-   const p=document.createElement('div');p.id='p19PascalSoundPanel';
-   p.innerHTML='<div class="p19psRow"><b>🔊 PASCAL → SCHWINGUNG</b><span>Zahl / Hz</span><input id="p19PascalHz" type="number" min="0.01" max="20000" step="0.01" value="432.00"><button id="p19PascalMinus">−</button><button id="p19PascalPlus">+</button><button id="p19PascalPlay">▶ HÖREN</button><span class="p19psRead" id="p19PascalRead">432.00 Hz</span></div><div class="p19psTiny">Pascal-Zahl direkt als Frequenz eingeben. Werte über 20.000 Hz werden für hörbare Wiedergabe oktaviert (÷2), während der Originalwert angezeigt bleibt.</div>';
+   const l=L(),p=document.createElement('div');p.id='p19PascalSoundPanel';
+   p.innerHTML='<div class="p19psRow"><b data-ps="title"></b><span data-ps="unit"></span><input id="p19PascalHz" type="number" min="0.01" max="20000" step="0.01" value="432.00"><button id="p19PascalMinus">−</button><button id="p19PascalPlus">+</button><button id="p19PascalPlay"></button><span class="p19psRead" id="p19PascalRead">432.00 Hz</span></div><div class="p19psTiny" data-ps="desc"></div>';
    host.appendChild(p);
 
    const input=document.getElementById('p19PascalHz'),read=document.getElementById('p19PascalRead'),play=document.getElementById('p19PascalPlay');
-   function audible(v){let f=Math.max(.01,Math.abs(v||0));while(f>20000)f/=2;while(f<20)f*=2;return f}
-   function upd(){let raw=Math.max(.01,+input.value||432),f=audible(raw);read.textContent=raw.toFixed(2)+' Hz → hörbar '+f.toFixed(2)+' Hz';if(osc&&ac)osc.frequency.setTargetAtTime(f,ac.currentTime,.02)}
-   function stop(){if(osc){try{osc.stop()}catch(e){}osc=null}if(gain){try{gain.disconnect()}catch(e){}gain=null}playing=false;play.textContent='▶ HÖREN'}
+   function upd(){let raw=Math.max(.01,+input.value||432),f=audible(raw);read.textContent=raw.toFixed(2)+' Hz → '+L().audible+' '+f.toFixed(2)+' Hz';if(osc&&ac)osc.frequency.setTargetAtTime(f,ac.currentTime,.02)}
+   function stop(){if(osc){try{osc.stop()}catch(e){}osc=null}if(gain){try{gain.disconnect()}catch(e){}gain=null}playing=false;play.textContent=L().listen}
    function toggle(){
      if(playing){stop();return}
      ac=ac||new (window.AudioContext||window.webkitAudioContext)();
@@ -6256,16 +6273,18 @@ button, a, div, [role="button"]{}
    input.addEventListener('input',upd);
    document.getElementById('p19PascalMinus').onclick=()=>{input.value=Math.max(.01,(+input.value||0)-1).toFixed(2);upd()};
    document.getElementById('p19PascalPlus').onclick=()=>{input.value=((+input.value||0)+1).toFixed(2);upd()};
-   play.onclick=toggle;upd();
+   play.onclick=toggle;applyText();upd();
 
-   /* If the old Pascal "Grundton" input is present, clicking/changing it copies its number here. */
    [...host.querySelectorAll('input[type="number"],input:not([type])')].forEach(i=>{
      if(i===input)return;
      i.addEventListener('change',()=>{let v=parseFloat(i.value);if(Number.isFinite(v)&&v>0){input.value=v.toFixed(2);upd()}});
    });
  }
+ function audible(v){let f=Math.max(.01,Math.abs(v||0));while(f>20000)f/=2;while(f<20)f*=2;return f}
  ensure();
  document.addEventListener('DOMContentLoaded',ensure);
+ document.querySelectorAll('.p19lang').forEach(b=>b.addEventListener('click',()=>setTimeout(applyText,0)));
+ window.addEventListener('storage',applyText);
  setTimeout(ensure,500);setTimeout(ensure,1500);
 })();
 </script>
