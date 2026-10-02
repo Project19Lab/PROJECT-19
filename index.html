@@ -7016,136 +7016,24 @@ body.p19-both-compare #pnBack{right:12px!important}
 })();
 </script>
 
-
-<script id="p19DynamicMainUiLangFix">
+<script id="p19CleanLanguageSync">
 (()=>{
- const ids=new Set(['buildPlay','surfaces','faceDiag','spaceDiag','phi']);
- let queued=false;
- const refresh=()=>{
-   queued=false;
-   const lang=localStorage.getItem('p19lang')||'de';
-   if(window.p19ApplyFullLang) window.p19ApplyFullLang(lang);
- };
- const mo=new MutationObserver(muts=>{
-   if(muts.some(m=>m.target && m.target.nodeType===1 && ids.has(m.target.id))){
-     if(!queued){queued=true;requestAnimationFrame(refresh);}
-   }
- });
- ids.forEach(id=>{const e=document.getElementById(id);if(e)mo.observe(e,{childList:true,characterData:true,subtree:true});});
- document.querySelectorAll('.p19lang').forEach(b=>b.addEventListener('click',()=>setTimeout(refresh,20)));
- setTimeout(refresh,150);
-})();
-</script>
-
-
-<script id="p19SolidNamesFinalFix">
-(()=>{
- const names={
-   de:{Tetraeder:'Tetraeder',Würfel:'Würfel',Oktaeder:'Oktaeder',Dodekaeder:'Dodekaeder',Ikosaeder:'Ikosaeder'},
-   en:{Tetraeder:'Tetrahedron',Würfel:'Cube',Oktaeder:'Octahedron',Dodekaeder:'Dodecahedron',Ikosaeder:'Icosahedron'},
-   it:{Tetraeder:'Tetraedro',Würfel:'Cubo',Oktaeder:'Ottaedro',Dodekaeder:'Dodecaedro',Ikosaeder:'Icosaedro'},
-   tr:{Tetraeder:'Dörtyüzlü',Würfel:'Küp',Oktaeder:'Sekizyüzlü',Dodekaeder:'Onikiyüzlü',Ikosaeder:'Yirmiyüzlü'}
- };
- const reverse={
-  Tetraeder:'Tetraeder',Tetrahedron:'Tetraeder',Tetraedro:'Tetraeder','Dörtyüzlü':'Tetraeder',
-  Würfel:'Würfel',Cube:'Würfel',Cubo:'Würfel','Küp':'Würfel',
-  Oktaeder:'Oktaeder',Octahedron:'Oktaeder',Ottaedro:'Oktaeder','Sekizyüzlü':'Oktaeder',
-  Dodekaeder:'Dodekaeder',Dodecahedron:'Dodekaeder,Dodecahedron'.split(',')[0],Dodecaedro:'Dodekaeder','Onikiyüzlü':'Dodekaeder',
-  Ikosaeder:'Ikosaeder',Icosahedron:'Ikosaeder',Icosaedro:'Ikosaeder','Yirmiyüzlü':'Ikosaeder'
- };
- function translateTextNode(node,dict){
-   const raw=node.nodeValue, t=raw.trim(), base=reverse[t];
-   if(base && dict[base]) node.nodeValue=raw.replace(t,dict[base]);
- }
- function apply(){
-   const lang=(localStorage.getItem('p19lang')||document.documentElement.lang||'de').toLowerCase();
-   const dict=names[lang]||names.de;
-   const roots=[document.getElementById('checks'),document.getElementById('colorControls')].filter(Boolean);
-   roots.forEach(root=>{
-     const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
-     let n; while(n=w.nextNode()) translateTextNode(n,dict);
+  function sync(){
+    const lang=(localStorage.getItem('p19lang')||document.documentElement.lang||'de').slice(0,2).toLowerCase();
+    if(window.p19ApplyFullLang) window.p19ApplyFullLang(lang);
+    if(window.p19ApplySoundLang) window.p19ApplySoundLang(lang);
+  }
+  document.querySelectorAll('.p19lang').forEach(b=>{
+    b.addEventListener('click',()=>setTimeout(sync,40));
+  });
+  ['buildPlay','buildBack','buildHome','buildFull','buildPrev','buildNext',
+   'arm1View','arm2View','arm3View','bothArms','surfaces','faceDiag','spaceDiag','phi']
+   .forEach(id=>{
+      const e=document.getElementById(id);
+      if(e)e.addEventListener('click',()=>setTimeout(sync,0));
    });
- }
- document.querySelectorAll('.p19lang').forEach(b=>b.addEventListener('click',()=>setTimeout(apply,30)));
- const roots=[document.getElementById('checks'),document.getElementById('colorControls')].filter(Boolean);
- roots.forEach(root=>new MutationObserver(()=>setTimeout(apply,0)).observe(root,{childList:true,subtree:true}));
- setTimeout(apply,200);
-})();
-</script>
-
-
-<script id="p19CubeHardFix">
-(()=>{
- const sets={
-  de:{Cube:'Würfel',Cubo:'Würfel','Küp':'Würfel'},
-  en:{Würfel:'Cube',Cubo:'Cube','Küp':'Cube'},
-  it:{Würfel:'Cubo',Cube:'Cubo','Küp':'Cubo'},
-  tr:{Würfel:'Küp',Cube:'Küp',Cubo:'Küp'}
- };
- function applyCube(){
-   const lang=(localStorage.getItem('p19lang')||document.documentElement.lang||'de').toLowerCase();
-   const map=sets[lang]||sets.de;
-   const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{
-    acceptNode(n){
-      const p=n.parentElement;
-      if(!p || ['SCRIPT','STYLE','NOSCRIPT'].includes(p.tagName)) return NodeFilter.FILTER_REJECT;
-      return NodeFilter.FILTER_ACCEPT;
-    }
-   });
-   let n;
-   while(n=walker.nextNode()){
-     const raw=n.nodeValue;
-     let v=raw;
-     for(const [from,to] of Object.entries(map)){
-       v=v.replace(new RegExp('(^|\\s)'+from.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?=\\s|$)','g'),(m,p)=>p+to);
-     }
-     if(v!==raw)n.nodeValue=v;
-   }
- }
- document.querySelectorAll('.p19lang').forEach(b=>b.addEventListener('click',()=>setTimeout(applyCube,60)));
- const obs=new MutationObserver(()=>{clearTimeout(window.__p19CubeTimer);window.__p19CubeTimer=setTimeout(applyCube,30)});
- obs.observe(document.body,{childList:true,subtree:true,characterData:true});
- setTimeout(applyCube,250);
-})();
-</script>
-
-
-<script id="p19CubeRealStructuralFix">
-(()=>{
- const N={
-  de:{'Tetraeder':'Tetraeder','Würfel':'Würfel','Oktaeder':'Oktaeder','Dodekaeder':'Dodekaeder','Ikosaeder':'Ikosaeder',opacity:'Deckkraft'},
-  en:{'Tetraeder':'Tetrahedron','Würfel':'Cube','Oktaeder':'Octahedron','Dodekaeder':'Dodecahedron','Ikosaeder':'Icosahedron',opacity:'Opacity'},
-  it:{'Tetraeder':'Tetraedro','Würfel':'Cubo','Oktaeder':'Ottaedro','Dodekaeder':'Dodecaedro','Ikosaeder':'Icosaedro',opacity:'Opacità'},
-  tr:{'Tetraeder':'Dörtyüzlü','Würfel':'Küp','Oktaeder':'Sekizyüzlü','Dodekaeder':'Onikiyüzlü','Ikosaeder':'Yirmiyüzlü',opacity:'Opaklık'}
- };
- function lang(){return (localStorage.getItem('p19lang')||document.documentElement.lang||'de').slice(0,2).toLowerCase()}
- function apply(){
-   const d=N[lang()]||N.de;
-
-   // Checkbox labels: use the permanent German internal key from data-n.
-   document.querySelectorAll('#checks input[data-n]').forEach(inp=>{
-     const key=inp.dataset.n, lab=inp.closest('label');
-     if(!lab||!d[key])return;
-     [...lab.childNodes].forEach(n=>{if(n.nodeType===Node.TEXT_NODE)n.remove()});
-     lab.append(document.createTextNode(' '+d[key]));
-   });
-
-   // Color controls: use permanent German internal key from data-color/data-opacity.
-   document.querySelectorAll('#colorControls input[data-color]').forEach(inp=>{
-     const key=inp.dataset.color, lab=inp.closest('label');
-     if(!lab||!d[key])return;
-     [...lab.childNodes].forEach(n=>{if(n.nodeType===Node.TEXT_NODE)n.remove()});
-     lab.insertBefore(document.createTextNode(d[key]+' '),inp);
-   });
-   document.querySelectorAll('#colorControls input[data-opacity]').forEach(inp=>{
-     const lab=inp.closest('label'); if(!lab)return;
-     [...lab.childNodes].forEach(n=>{if(n.nodeType===Node.TEXT_NODE)n.remove()});
-     lab.insertBefore(document.createTextNode(d.opacity+' '),inp);
-   });
- }
- document.querySelectorAll('.p19lang').forEach(b=>b.addEventListener('click',()=>setTimeout(apply,80)));
- window.addEventListener('load',()=>setTimeout(apply,100));
- setTimeout(apply,300);
+  window.addEventListener('load',()=>setTimeout(sync,120));
+  setTimeout(sync,250);
 })();
 </script>
 
