@@ -4721,7 +4721,8 @@ function buildDolphin(){if(animalRoot)return animalRoot;animalRoot=new THREE.Gro
 function updateBuild(){if(!animalRoot)return;const n=animalBuildMeshes.length||1;animalBuildMeshes.forEach((m,i)=>{const local=Math.max(0,Math.min(1,animalBuild*n-i)),cnt=m.geometry.attributes.position.count,draw=Math.floor(cnt*local/3)*3;m.geometry.setDrawRange(0,draw);m.visible=local>0});const p=animalPanel&&animalPanel.querySelector('#a5Build');if(p)p.value=(animalBuild*100).toFixed(1);const v=animalPanel&&animalPanel.querySelector('#a5BuildPct');if(v)v.textContent=Math.round(animalBuild*100)+'%'}
 function setWire(v){animalWire=v;buildDolphin().traverse(o=>{if(o.userData&&o.userData.a5Surface){o.material.opacity=v?.28:.93;o.material.needsUpdate=true}if(o.userData&&o.userData.a5Edge){o.visible=true;o.material.opacity=v?.98:.86}});const t=A5[lang()],b=animalPanel&&animalPanel.querySelector('#a5Mode');if(b)b.textContent=v?t.wire:t.surface}
 function infoHTML(t){return `<b>${t.h1}</b><br>${t.p1}<div style="margin-top:8px"><b>${t.h2}</b><br>${t.p2}</div><div style="margin-top:8px"><b>${t.h3}</b><br>${t.p3}</div><div style="margin-top:8px"><b>${t.h4}</b><br>${t.p4}</div><div class="a5mission"><b>${t.mission}</b><br>${t.m}</div>`}
-function ensurePanel(){if(animalPanel)return animalPanel;const t=A5[lang()];animalPanel=document.createElement('div');animalPanel.id='animalArm';animalPanel.innerHTML=`<div class="a5panel"><b style="font-size:18px">${t.title}</b><div class="a5tiny" style="margin-top:4px">${t.sub}<br>${t.drag}</div><div class="a5row"><button id="a5Back" style="width:100%;font-weight:800">${t.back}</button></div><div class="a5row"><span>${t.mode}:</span><button id="a5Mode">${t.wire}</button><label>${t.speed} <input id="a5Speed" type="range" min="0" max="2" step=".1" value=".28"></label><span id="a5Sv">0.28×</span></div><div style="margin-top:10px;padding:9px;background:#09202b;border:1px solid #2d7184;border-radius:9px"><b>${t.build}</b><div class="a5row"><button id="a5BuildPlay">${t.buildStart}</button><button id="a5BuildHome">${t.buildHome}</button><button id="a5BuildFull">${t.buildFull}</button></div><input id="a5Build" type="range" min="0" max="100" step=".1" value="100" style="width:100%"><div class="a5row"><span id="a5BuildPct">100%</span><label>${t.buildSpeed} <input id="a5BuildSpeed" type="range" min=".1" max="2" step=".1" value=".55"></label><span id="a5BuildSv">0.55×</span></div></div><div class="a5row"><button id="a5Reset">${t.reset}</button><button id="a5Discover">${t.discover}</button></div><div id="a5Info" class="a5info">${infoHTML(t)}</div><div class="a5tiny" style="margin-top:9px">PROJECT 19 · real OBJ mesh visualization · source mesh: dolphin.obj</div></div>`;document.body.appendChild(animalPanel);const q=id=>animalPanel.querySelector('#'+id);
+function ensurePanel(){if(animalPanel)return animalPanel;const t=A5[lang()];animalPanel=document.createElement('div');animalPanel.id='animalArm';animalPanel.innerHTML=`<div class="a5panel"><b style="font-size:18px">${t.title}</b><div class="a5tiny" style="margin-top:4px">${t.sub}<br>${t.drag}</div><div class="a5row"><button id="a5Back" style="width:100%;font-weight:800">${t.back}</button></div><div class="a5row"><span>${t.mode}:</span><button id="a5Mode">${t.wire}</button><label>${t.speed} <input id="a5Speed" type="range" min="0" max="2" step=".1" value=".28"></label><span id="a5Sv">0.28×</span></div><div style="margin-top:10px;padding:9px;background:#09202b;border:1px solid #2d7184;border-radius:9px"><b>${t.build}</b><div class="a5row"><button id="a5BuildPlay">${t.buildStart}</button><button id="a5BuildHome">${t.buildHome}</button><button id="a5BuildFull">${t.buildFull}</button></div><input id="a5Build" type="range" min="0" max="100" step=".1" value="100" style="width:100%"><div class="a5row"><span id="a5BuildPct">100%</span><label>${t.buildSpeed} <input id="a5BuildSpeed" type="range" min=".1" max="2" step=".1" value=".55"></label><span id="a5BuildSv">0.55×</span></div></div>
+<div class="a5row"><button id="a5Reset">${t.reset}</button><button id="a5Discover">${t.discover}</button></div><div id="a5Info" class="a5info">${infoHTML(t)}</div><div class="a5tiny" style="margin-top:9px">PROJECT 19 · real OBJ mesh visualization · source mesh: dolphin.obj</div></div>`;document.body.appendChild(animalPanel);const q=id=>animalPanel.querySelector('#'+id);
  q('a5Back').onclick=leave;q('a5Mode').onclick=()=>setWire(!animalWire);q('a5Speed').oninput=e=>{animalSpin=+e.target.value;q('a5Sv').textContent=animalSpin.toFixed(2)+'×'};
  q('a5Build').oninput=e=>{animalBuildRunning=false;animalBuild=+e.target.value/100;updateBuild();q('a5BuildPlay').textContent=t.buildStart};
  q('a5BuildSpeed').oninput=e=>{animalBuildSpeed=+e.target.value;q('a5BuildSv').textContent=animalBuildSpeed.toFixed(2)+'×'};
@@ -5930,6 +5931,123 @@ document.addEventListener('DOMContentLoaded',function(){
   </aside>
  </div>
 </section>
+
+<style id="p19BrainWavesStep1CSS">
+#p19BrainBtn{margin-left:8px;border:1px solid #6f5cff;background:linear-gradient(180deg,#17132d,#0a0c18);color:#e9e5ff;border-radius:9px;padding:9px 12px;font-weight:800;letter-spacing:.04em;cursor:pointer}
+#p19BrainPanel{display:none;position:fixed;inset:76px 0 0 0;z-index:99999;background:#050810;border:1px solid #4e467b;border-radius:14px 14px 0 0;box-shadow:0 18px 70px rgba(0,0,0,.75);overflow:auto;padding:18px}
+#p19BrainPanel.show{display:block}
+#p19BrainPanel .bwHead{display:flex;align-items:center;gap:10px;border-bottom:1px solid #292647;padding-bottom:12px;margin-bottom:16px}
+#p19BrainPanel .bwHead h3{margin:0;flex:1;color:#efeaff;letter-spacing:.08em}
+#p19BrainClose{border:1px solid #5b547e;background:#0d1020;color:#fff;border-radius:8px;padding:7px 10px;cursor:pointer}
+#p19BrainPanel .bwIntro{color:#aeb8cb;max-width:900px;line-height:1.55}
+#p19BrainPanel .bwSwitches{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0}
+#p19BrainPanel .bwSwitch{border:1px solid #3b4260;background:#0b1020;color:#dce5f5;border-radius:999px;padding:9px 13px;cursor:pointer;font-weight:750}
+#p19BrainPanel .bwSwitch[aria-pressed="true"]{border-color:#a894ff;box-shadow:0 0 18px rgba(133,105,255,.24);background:#181334}
+#p19BrainPanel .bwStage{min-height:260px;border:1px solid #252d43;border-radius:14px;background:radial-gradient(circle at center,rgba(75,98,145,.12),transparent 55%),#03060b;display:grid;place-items:center;text-align:center;padding:24px;color:#8391aa}
+#p19BrainPanel .bwStage>div{width:100%;min-width:0}
+#p19BrainPanel .bwStage b{display:block;color:#e8ecf7;font-size:18px;margin-bottom:8px}
+#p19BrainPanel .bwBrainWaveCard{width:100%;box-sizing:border-box}
+#p19BrainWaveCanvas{width:100%;height:300px;background:#02080d;border-radius:10px;display:block}
+#p19BrainPanel .bwBrainInfo{margin:30px 0 0;width:100%;box-sizing:border-box;padding:20px 22px;text-align:left;font-size:14px;line-height:1.7;color:#aeb9cf;border:1px solid rgba(218,181,92,.35);border-radius:12px;background:#08101c}
+#p19BrainPanel .bwSoundBox{margin:14px 0 24px;padding:14px 16px;border:1px solid #2a5268;border-radius:12px;background:#07131d;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+#p19BrainPanel .bwSoundBox button{border:1px solid #3d7897;border-radius:9px;background:#091725;color:#dcebf4;padding:9px 14px;cursor:pointer}
+#p19BrainPanel .bwSoundBox label{display:flex;align-items:center;gap:9px;color:#aeb9cf;font-size:12px}
+#p19BrainPanel .bwSoundBox input{width:170px}
+
+@media(max-width:700px){#p19BrainPanel{inset:64px 0 0 0;padding:12px}#p19BrainBtn{padding:8px 9px;font-size:11px}}
+</style>
+<script id="p19BrainWavesStep1JS">
+(function(){
+ function lang(){let l=(document.documentElement.lang||localStorage.getItem('p19lang')||'de').slice(0,2);return ['de','en','it','tr'].includes(l)?l:'de'}
+ const T={
+  de:{btn:'🧠 GEHIRNWELLEN',title:'🧠 GEHIRNWELLEN · MENSCHLICHE FUNKTIONEN',intro:'Interaktive Übersicht der EEG-Frequenzbänder. Die Bänder sind mit typischen Zuständen assoziiert; sie bestimmen einen mentalen Zustand nicht allein.',stage:'VISUALISIERUNG',soon:'DELTA · 0.5–4 Hz'},
+  en:{btn:'🧠 BRAIN WAVES',title:'🧠 BRAIN WAVES · HUMAN FUNCTIONS',intro:'Interactive overview of EEG frequency bands. Bands are associated with typical states; they do not determine a mental state on their own.',stage:'VISUALIZATION',soon:'Head · brain · live wave — next SAFE step'},
+  it:{btn:'🧠 ONDE CEREBRALI',title:'🧠 ONDE CEREBRALI · FUNZIONI UMANE',intro:'Panoramica interattiva delle bande di frequenza EEG. Le bande sono associate a stati tipici; da sole non determinano uno stato mentale.',stage:'VISUALIZZAZIONE',soon:'Testa · cervello · onda live — prossimo passo SAFE'},
+  tr:{btn:'🧠 BEYİN DALGALARI',title:'🧠 BEYİN DALGALARI · İNSAN İŞLEVLERİ',intro:'EEG frekans bantlarının etkileşimli özeti. Bantlar tipik durumlarla ilişkilidir; tek başlarına zihinsel bir durumu belirlemezler.',stage:'GÖRSELLEŞTİRME',soon:'Baş · beyin · canlı dalga — sonraki SAFE adım'}
+ };
+ function setup(){
+  const lab=document.getElementById('freqLab'), head=lab&&lab.querySelector('.fqHead'); if(!lab||!head||document.getElementById('p19BrainBtn'))return;
+  const b=document.createElement('button'); b.id='p19BrainBtn'; head.insertBefore(b,document.getElementById('fqClose'));
+  const p=document.createElement('div'); p.id='p19BrainPanel';
+  p.innerHTML='<div class="bwHead"><h3 id="p19BrainTitle"></h3><button id="p19BrainClose">✕</button></div><p class="bwIntro" id="p19BrainIntro"></p><div class="bwSwitches">'+
+   ['Gamma','Beta','Alpha','Theta','Delta'].map(x=>'<button class="bwSwitch" data-band="'+x.toLowerCase()+'" aria-pressed="false">'+x+'</button>').join('')+
+   '</div><div class="fqCard bwBrainWaveCard" style="margin-top:14px"><h3 id="p19BrainWaveTitle">DELTA · 0.5–4 Hz</h3><canvas id="p19BrainWaveCanvas" aria-hidden="true"></canvas></div><div id="p19BrainBandInfo" class="bwBrainInfo">0,5–4 Hz · Tiefschlaf · Regeneration · traumloser Schlaf · körperliche Erholung · sehr tiefe Entspannung.</div><div class="bwSoundBox"><button id="p19BrainPlay" type="button">▶ SOUND</button><button id="p19BrainStop" type="button">■ STOP</button><label>VOLUME <input id="p19BrainVol" type="range" min="0" max="100" value="22"></label></div>';
+  lab.appendChild(p);
+  function paint(){const t=T[lang()];b.textContent=t.btn;document.getElementById('p19BrainTitle').textContent=t.title;document.getElementById('p19BrainIntro').textContent=t.intro}
+  b.onclick=()=>{p.classList.add('show');bwWaveBand='delta';bwPhase=0;if(!bwWaveRAF)bwWaveRAF=requestAnimationFrame(bwWaveLoop);
+   const bp=document.getElementById('p19BrainPlay'),bs=document.getElementById('p19BrainStop'),bv=document.getElementById('p19BrainVol');
+   if(bp)bp.onclick=bwPlay;if(bs)bs.onclick=bwStop;
+   if(bv)bv.oninput=()=>{if(bwGain)bwGain.gain.value=(+bv.value/100)*0.12};}; document.getElementById('p19BrainClose').onclick=()=>{p.classList.remove('show');if(bwWaveRAF){cancelAnimationFrame(bwWaveRAF);bwWaveRAF=0;}bwStop();};
+  let bwAudio=null,bwOsc=null,bwGain=null,bwBand='delta';
+ let bwWaveRAF=0,bwPhase=0,bwWaveBand='delta';
+ function bwStop(){try{if(bwOsc)bwOsc.stop()}catch(e){}bwOsc=null;if(bwGain){try{bwGain.disconnect()}catch(e){}}bwGain=null}
+ function bwPlay(){
+  bwStop();
+  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+  if(!bwAudio)bwAudio=new AC();
+  if(bwAudio.state==='suspended')bwAudio.resume();
+  const audible={gamma:520,beta:440,alpha:360,theta:300,delta:240}[bwBand]||240;
+  bwOsc=bwAudio.createOscillator();bwGain=bwAudio.createGain();
+  bwOsc.type='sine';bwOsc.frequency.value=audible;
+  const v=document.getElementById('p19BrainVol');bwGain.gain.value=((v?+v.value:22)/100)*0.12;
+  bwOsc.connect(bwGain);bwGain.connect(bwAudio.destination);bwOsc.start();
+ }
+ function drawBrainWave(band,phase=0){
+   const c=document.getElementById('p19BrainWaveCanvas'); if(!c)return;
+   const r=c.getBoundingClientRect(),d=window.devicePixelRatio||1;
+   c.width=Math.max(1,Math.round(r.width*d)); c.height=Math.max(1,Math.round(r.height*d));
+   const g=c.getContext('2d'); g.setTransform(d,0,0,d,0,0);
+   const w=r.width,h=r.height;
+   const colors={gamma:'#b68cff',beta:'#ff9d32',alpha:'#ff4f55',theta:'#48d879',delta:'#4da3ff'};
+   const cycles={gamma:12,beta:9,alpha:6,theta:4,delta:2};
+   g.clearRect(0,0,w,h);
+   g.strokeStyle='#16384a'; g.lineWidth=1;
+   for(let i=0;i<7;i++){g.beginPath();g.moveTo(0,i*h/6);g.lineTo(w,i*h/6);g.stroke();}
+   g.strokeStyle=colors[band]||'#4da3ff'; g.lineWidth=3; g.beginPath();
+   const n=cycles[band]||2;
+   for(let x=0;x<=w;x++){const y=h/2+Math.sin(x/w*Math.PI*2*n+phase)*h*.30;x?g.lineTo(x,y):g.moveTo(x,y);}
+   g.stroke();
+  }
+  function bwWaveLoop(){
+   if(!p.classList.contains('show')){bwWaveRAF=0;return;}
+   bwPhase+=0.045;
+   drawBrainWave(bwWaveBand,bwPhase);
+   bwWaveRAF=requestAnimationFrame(bwWaveLoop);
+  }
+  p.querySelectorAll('.bwSwitch').forEach(x=>x.onclick=()=>{bwBand=x.dataset.band;const wasPlaying=!!bwOsc;
+   p.querySelectorAll('.bwSwitch').forEach(y=>y.setAttribute('aria-pressed','false'));
+   x.setAttribute('aria-pressed','true');
+   const hz={gamma:'GAMMA · 30–100+ Hz',beta:'BETA · 13–30 Hz',alpha:'ALPHA · 8–13 Hz',theta:'THETA · 4–8 Hz',delta:'DELTA · 0.5–4 Hz'};
+   const info={
+de:{gamma:'30–100 Hz · Höchste kognitive Leistung · intensive Konzentration · Informationsverarbeitung · Lernen und komplexe geistige Aktivität.',beta:'13–30 Hz · Wachzustand · logisches Denken · aktive Aufmerksamkeit · Konzentration · Problemlösen. High-Beta (>20 Hz) wird in der Vorlage mit Stress und hoher Anspannung verbunden.',alpha:'8–13 Hz · Wache Entspannung · Ruhe · Kreativität · leichtes Meditieren. In der Vorlage außerdem als „Brücke zum Unterbewusstsein“ beschrieben.',theta:'4–8 Hz · Leichter Schlaf · Träumen · tiefe Meditation · Intuition · Kreativität. In der Vorlage außerdem mit „Zugang zum Unterbewusstsein“ verbunden.',delta:'0,5–4 Hz · Tiefschlaf · Regeneration · traumloser Schlaf · körperliche Erholung · sehr tiefe Entspannung · besonders langsame Gehirnaktivität.'},
+en:{gamma:'30–100 Hz · Highest cognitive performance · intense concentration · information processing · learning and complex mental activity.',beta:'13–30 Hz · Wakefulness · logical thinking · active attention · concentration · problem solving. The reference associates high beta (>20 Hz) with stress and high tension.',alpha:'8–13 Hz · Relaxed wakefulness · calm · creativity · light meditation. The reference also describes it as a “bridge to the subconscious”.',theta:'4–8 Hz · Light sleep · dreaming · deep meditation · intuition · creativity. The reference also links it with “access to the subconscious”.',delta:'0.5–4 Hz · Deep sleep · regeneration · dreamless sleep · physical recovery · very deep relaxation.'},
+it:{gamma:'30–100 Hz · Massime prestazioni cognitive · concentrazione intensa · elaborazione delle informazioni · apprendimento e attività mentale complessa.',beta:'13–30 Hz · Veglia · pensiero logico · attenzione attiva · concentrazione · risoluzione dei problemi. La fonte associa l’High-Beta (>20 Hz) a stress e forte tensione.',alpha:'8–13 Hz · Veglia rilassata · calma · creatività · meditazione leggera. La fonte la descrive anche come “ponte verso il subconscio”.',theta:'4–8 Hz · Sonno leggero · sogni · meditazione profonda · intuizione · creatività. La fonte la collega anche all’“accesso al subconscio”.',delta:'0,5–4 Hz · Sonno profondo · rigenerazione · sonno senza sogni · recupero fisico · rilassamento molto profondo.'},
+tr:{gamma:'30–100 Hz · En yüksek bilişsel performans · yoğun konsantrasyon · bilgi işleme · öğrenme ve karmaşık zihinsel etkinlik.',beta:'13–30 Hz · Uyanıklık · mantıksal düşünme · aktif dikkat · konsantrasyon · problem çözme. Kaynak High-Beta’yı (>20 Hz) stres ve yüksek gerilimle ilişkilendiriyor.',alpha:'8–13 Hz · Rahat uyanıklık · sakinlik · yaratıcılık · hafif meditasyon. Kaynak ayrıca bunu “bilinçaltına köprü” olarak tanımlıyor.',theta:'4–8 Hz · Hafif uyku · rüya · derin meditasyon · sezgi · yaratıcılık. Kaynak ayrıca “bilinçaltına erişim” ile ilişkilendiriyor.',delta:'0,5–4 Hz · Derin uyku · yenilenme · rüyasız uyku · fiziksel toparlanma · çok derin rahatlama.'}
+};
+   const el=document.getElementById('p19BrainWaveTitle');
+   const colors={gamma:'#b68cff',beta:'#ff9d32',alpha:'#ff4f55',theta:'#48d879',delta:'#4da3ff'};
+   if(el&&hz[x.dataset.band]){
+    el.textContent=hz[x.dataset.band];
+    el.style.color=colors[x.dataset.band]||'';
+    const bi=document.getElementById('p19BrainBandInfo');
+    const lang=(localStorage.getItem('p19lang')||'de').toLowerCase();
+    const pack=info[lang]||info.de;
+    if(bi&&pack[x.dataset.band])bi.textContent=pack[x.dataset.band];
+   }
+   p.querySelectorAll('.bwSwitch').forEach(y=>{y.style.color='';y.style.borderColor='';});
+   if(colors[x.dataset.band]){
+    x.style.color=colors[x.dataset.band];
+    x.style.borderColor=colors[x.dataset.band];
+    bwWaveBand=x.dataset.band;drawBrainWave(bwWaveBand,bwPhase);if(wasPlaying)bwPlay();
+   }
+  });
+  paint(); new MutationObserver(paint).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+ }
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',setup):setup();
+})();
+</script>
+
+
 <script id="p19FrequencyLabJS">
 (function(){
  const $=id=>document.getElementById(id),lab=$('freqLab'),btn=$('freqBtn'),range=$('fqRange'),num=$('fqNum'),wave=$('fqWave'),cym=$('fqCym');
