@@ -8809,6 +8809,8 @@ background:#07131e;color:#bcd1df;font-weight:850;letter-spacing:.06em;cursor:poi
 
  function findPortal(){
    // Find the existing ENTER button without touching its click handler.
+   const direct=document.getElementById('p19Enter');
+   if(direct)return direct;
    const els=[...document.querySelectorAll('button,a')];
    return els.find(e=>/ENTER\s*3D\s*LAB/i.test(e.textContent||''));
  }
@@ -8975,7 +8977,7 @@ background:#07131e;color:#bcd1df;font-weight:850;letter-spacing:.06em;cursor:poi
 <script id="p19StartVisualV3NoCloakLogic">
 (()=>{
  function install(){
-   const enter=[...document.querySelectorAll('button,a')].find(e=>/ENTER\s*3D\s*LAB/i.test(e.textContent||''));
+   const enter=document.getElementById('p19Enter') || [...document.querySelectorAll('button,a')].find(e=>/ENTER\s*3D\s*LAB/i.test(e.textContent||''));
    if(!enter)return false;
    const card=enter.closest('.p19StartPremium') || enter.closest('section,main,.portal,.start,.startCard,.card') || enter.parentElement?.parentElement?.parentElement;
    if(!card)return false;
