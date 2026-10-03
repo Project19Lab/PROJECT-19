@@ -4578,28 +4578,352 @@ function makeNaturalPetal(color,scaleX=1,scaleY=1){const g=makePetalGeometry(),m
 function buildNaturalPlant(kind){
  const g=new THREE.Group();g.name='naturalPlant';g.position.x=1.15;
  const addRing=(n,r,color,sy=1,twist=0,z=0)=>{for(let i=0;i<n;i++){const a=i*Math.PI*2/n+twist,m=makeNaturalPetal(color,1,sy);m.rotation.z=a-Math.PI/2;m.rotation.x=-.16;m.position.set(Math.cos(a)*r,Math.sin(a)*r,z);g.add(m)}};
- if(kind==='rose'){addRing(5,.42,0xb51642,1.15,0,.08);addRing(8,.70,0xd92f61,1.12,.20,0);addRing(13,1.00,0xf05b83,1.05,.08,-.08);const c=new THREE.Mesh(new THREE.SphereGeometry(.22,20,12),new THREE.MeshPhongMaterial({color:0xffc857}));c.position.z=.16;g.add(c)}
- if(kind==='lotus'){addRing(8,.48,0xf3b6d2,1.35,0,.04);addRing(12,.82,0xf08fbd,1.45,.12,-.03);addRing(16,1.10,0xf6c6dc,1.35,.05,-.10);const c=new THREE.Mesh(new THREE.CylinderGeometry(.32,.48,.22,18),new THREE.MeshPhongMaterial({color:0xe2c54b}));c.rotation.x=Math.PI/2;c.position.z=.13;g.add(c);for(let i=0;i<18;i++){const a=i*2*Math.PI/18,d=new THREE.Mesh(new THREE.SphereGeometry(.035,8,6),new THREE.MeshBasicMaterial({color:0x5b4720}));d.position.set(.25*Math.cos(a),.25*Math.sin(a),.27);g.add(d)}}
- if(kind==='yarrow'){for(let k=0;k<19;k++){const a=k*2.39996,r=.17*Math.sqrt(k),cx=r*Math.cos(a),cy=r*Math.sin(a);for(let j=0;j<5;j++){const q=j*2*Math.PI/5,m=makeNaturalPetal(0xf4f0dc,.22,.28);m.rotation.z=q-Math.PI/2;m.position.set(cx+.09*Math.cos(q),cy+.09*Math.sin(q),.02+.02*Math.sin(k));g.add(m)}const d=new THREE.Mesh(new THREE.SphereGeometry(.035,7,5),new THREE.MeshBasicMaterial({color:0xd8c85a}));d.position.set(cx,cy,.08);g.add(d)}}
- if(kind==='arnica'){addRing(16,.83,0xf3b51b,1.55,.08,0);const dm=new THREE.MeshPhongMaterial({color:0xd68b0a});for(let i=0;i<170;i++){const a=i*2.39996,r=.48*Math.sqrt((i+.5)/170),d=new THREE.Mesh(new THREE.SphereGeometry(.035,7,5),dm);d.position.set(r*Math.cos(a),r*Math.sin(a),.10);g.add(d)}}
- if(kind==='lavender'){for(let row=0;row<10;row++){const y=-1.25+row*.27;for(let j=0;j<6;j++){const a=j*Math.PI*2/6+(row%2)*.35,m=new THREE.Mesh(new THREE.SphereGeometry(.11,.11?9:9,7),new THREE.MeshPhongMaterial({color:row%2?0x7c5cc4:0x9877d9}));m.scale.set(.72,1.25,.72);m.position.set(.28*Math.cos(a),y,.28*Math.sin(a));g.add(m)}}const stem=new THREE.Mesh(new THREE.CylinderGeometry(.035,.045,2.9,10),new THREE.MeshPhongMaterial({color:0x557b45}));stem.position.y=-.1;g.add(stem);g.rotation.z=-Math.PI/2}
+ if(kind==='rose'){
+  // PROJECT 19 · ROSE V3
+  // Broad rounded cup-shaped petals, strong overlap and a closed spiral centre.
+  const roseCols=[0x8b1033,0xb81746,0xd93663,0xee6688,0xf1849e];
+  const mats=roseCols.map(c=>new THREE.MeshPhongMaterial({
+    color:c,side:THREE.DoubleSide,shininess:55,specular:0x55202d
+  }));
+
+  // A rose-specific petal: broad fan / heart-like upper edge, narrow base, softly cupped.
+  function rosePetalGeo(w,h,cup){
+    const segX=10, segY=12, verts=[], idx=[];
+    for(let iy=0;iy<=segY;iy++){
+      const v=iy/segY;
+      // narrow attachment at base; broad rounded upper half
+      const half=w*(0.10 + 0.90*Math.sin(Math.PI*0.52*v));
+      for(let ix=0;ix<=segX;ix++){
+        const u=ix/segX*2-1;
+        // rounded shoulders + shallow centre notch at the rim
+        let y=h*v;
+        const rim=v>0.82 ? (v-0.82)/0.18 : 0;
+        y -= h*0.055*rim*Math.exp(-u*u*18);
+        const x=u*half;
+        // bowl curvature: edges and tip curl slightly toward viewer
+        const z=cup*(u*u*0.42 + v*v*0.58) + 0.035*Math.sin(Math.PI*v);
+        verts.push(x,y,z);
+      }
+    }
+    for(let iy=0;iy<segY;iy++)for(let ix=0;ix<segX;ix++){
+      const a=iy*(segX+1)+ix,b=a+1,c=a+(segX+1),d=c+1;
+      idx.push(a,c,b,b,c,d);
+    }
+    const geo=new THREE.BufferGeometry();
+    geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
+    geo.setIndex(idx); geo.computeVertexNormals();
+    geo.translate(0,-h*.12,0);
+    return geo;
+  }
+
+  const layers=[
+    // n, radius, width, height, z, inward tilt, rotation offset
+    {n:16,r:.76,w:.43,h:.78,z:-.12,t:.16,o:.04,mat:4},
+    {n:13,r:.58,w:.42,h:.72,z:-.02,t:.28,o:.26,mat:3},
+    {n:10,r:.41,w:.39,h:.62,z:.09,t:.43,o:.06,mat:2},
+    {n:7, r:.27,w:.34,h:.52,z:.20,t:.62,o:.34,mat:1},
+    {n:5, r:.15,w:.27,h:.40,z:.30,t:.83,o:.08,mat:0}
+  ];
+
+  layers.forEach((L,li)=>{
+    const geo=rosePetalGeo(L.w,L.h,.18+li*.035);
+    for(let i=0;i<L.n;i++){
+      const a=i*Math.PI*2/L.n+L.o;
+      const m=new THREE.Mesh(geo,mats[L.mat]);
+      m.position.set(Math.cos(a)*L.r,Math.sin(a)*L.r,L.z);
+      // local +Y points outward; petals overlap around the cup
+      m.rotation.z=a-Math.PI/2;
+      m.rotation.x=-L.t;
+      m.rotation.y=.05*Math.sin(a*3);
+      m.userData.buildStage=4-li; // Aufbau: centre -> outside
+      g.add(m);
+    }
+  });
+
+  // Dense curled centre: short broad petals, no black star-shaped hole.
+  const heartGeo=rosePetalGeo(.22,.30,.24);
+  for(let i=0;i<12;i++){
+    const a=i*2.399963229728653;
+    const r=.025+.010*i;
+    const m=new THREE.Mesh(heartGeo,mats[i<5?0:1]);
+    m.position.set(r*Math.cos(a),r*Math.sin(a),.36+.008*i);
+    m.rotation.z=a-Math.PI/2;
+    m.rotation.x=-1.02;
+    m.scale.set(1,1,.9);
+    m.userData.buildStage=0;
+    g.add(m);
+  }
+  g.userData.buildStages=5;
+ } if(kind==='lotus'){
+  // PROJECT 19 · LOTUS V2 — simple, child-friendly layered lotus.
+  const lotusCols=[0xf7b6c8,0xf39bb6,0xea789f,0xd95787];
+  const lotusMats=lotusCols.map(c=>new THREE.MeshPhongMaterial({
+    color:c,side:THREE.DoubleSide,shininess:48,specular:0x553344
+  }));
+  const centreMat=new THREE.MeshPhongMaterial({color:0xf2c84b,shininess:35});
+  const seedMat=new THREE.MeshPhongMaterial({color:0xd99b2b,shininess:20});
+
+  function lotusPetalGeo(w,h,cup){
+    const sx=8,sy=11,v=[],idx=[];
+    for(let iy=0;iy<=sy;iy++){
+      const t=iy/sy;
+      // pointed oval lotus petal: narrow base, widest in middle, pointed tip
+      const half=w*Math.pow(Math.sin(Math.PI*t),.72);
+      for(let ix=0;ix<=sx;ix++){
+        const u=ix/sx*2-1;
+        const x=u*half;
+        const y=h*t;
+        // gentle longitudinal bowl with raised edges
+        const z=cup*(u*u*.40 + t*t*.62);
+        v.push(x,y,z);
+      }
+    }
+    for(let iy=0;iy<sy;iy++)for(let ix=0;ix<sx;ix++){
+      const a=iy*(sx+1)+ix,b=a+1,c=a+sx+1,d=c+1;
+      idx.push(a,c,b,b,c,d);
+    }
+    const geo=new THREE.BufferGeometry();
+    geo.setAttribute('position',new THREE.Float32BufferAttribute(v,3));
+    geo.setIndex(idx);geo.computeVertexNormals();
+    geo.translate(0,-h*.12,0);
+    return geo;
+  }
+
+  const layers=[
+    {n:12,r:.73,w:.31,h:.82,z:-.12,t:.12,o:.02,mat:0,stage:4},
+    {n:10,r:.56,w:.30,h:.74,z:-.03,t:.27,o:.28,mat:1,stage:3},
+    {n:8, r:.40,w:.27,h:.63,z:.08,t:.45,o:.05,mat:2,stage:2},
+    {n:6, r:.26,w:.23,h:.50,z:.18,t:.66,o:.34,mat:3,stage:1}
+  ];
+
+  layers.forEach(L=>{
+    const geo=lotusPetalGeo(L.w,L.h,.13+L.t*.08);
+    for(let i=0;i<L.n;i++){
+      const a=i*Math.PI*2/L.n+L.o;
+      const m=new THREE.Mesh(geo,lotusMats[L.mat]);
+      m.position.set(Math.cos(a)*L.r,Math.sin(a)*L.r,L.z);
+      m.rotation.z=a-Math.PI/2;
+      m.rotation.x=-L.t;
+      m.userData.buildStage=L.stage;
+      g.add(m);
+    }
+  });
+
+  // recognisable yellow lotus centre
+  const c=new THREE.Mesh(new THREE.CylinderGeometry(.19,.25,.13,18),centreMat);
+  c.rotation.x=Math.PI/2;c.position.z=.30;c.userData.buildStage=0;g.add(c);
+  for(let i=0;i<13;i++){
+    const a=i*2.39996323,r=.035+.010*i;
+    const s=new THREE.Mesh(new THREE.SphereGeometry(.025,8,6),seedMat);
+    s.position.set(r*Math.cos(a),r*Math.sin(a),.38);
+    s.userData.buildStage=0;g.add(s);
+  }
+
+  g.userData.buildStages=5;
+ } if(kind==='yarrow'){
+  // PROJECT 19 · YARROW V2 — branching stem + flat-topped clusters.
+  const stemMat=new THREE.MeshPhongMaterial({color:0x557a38,shininess:18});
+  const leafMat=new THREE.MeshPhongMaterial({color:0x6f9448,side:THREE.DoubleSide});
+  const whiteMat=new THREE.MeshPhongMaterial({color:0xf3f0df,side:THREE.DoubleSide,shininess:24});
+  const diskMat=new THREE.MeshPhongMaterial({color:0xd7b936,shininess:20});
+
+  function cylBetween(a,b,r,mat,stage){
+    const v=new THREE.Vector3().subVectors(b,a), len=v.length();
+    const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r*.82,len,8),mat);
+    m.position.copy(a).add(b).multiplyScalar(.5);
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),v.clone().normalize());
+    m.userData.buildStage=stage; g.add(m); return m;
+  }
+  function smallLeaf(x,y,z,side,scale,stage){
+    const geo=makePetalGeometry();
+    const m=new THREE.Mesh(geo,leafMat);
+    m.scale.set(.18*scale,.55*scale,1);
+    m.position.set(x,y,z);
+    m.rotation.z=side>0?-1.12:1.12;
+    m.rotation.x=-.25;
+    m.userData.buildStage=stage; g.add(m);
+  }
+  function head(x,y,z,s,stage){
+    const hg=new THREE.Group(); hg.position.set(x,y,z); hg.userData.buildStage=stage;
+    // five tiny ray florets around a yellow centre
+    for(let j=0;j<5;j++){
+      const a=j*Math.PI*2/5;
+      const p=new THREE.Mesh(makePetalGeometry(),whiteMat);
+      p.scale.set(.13*s,.23*s,1);
+      p.position.set(.13*s*Math.cos(a),.13*s*Math.sin(a),0);
+      p.rotation.z=a-Math.PI/2;
+      hg.add(p);
+    }
+    const d=new THREE.Mesh(new THREE.SphereGeometry(.075*s,10,7),diskMat);
+    d.scale.z=.55; d.position.z=.035; hg.add(d);
+    g.add(hg);
+  }
+
+  // main stem
+  cylBetween(new THREE.Vector3(0,-1.45,0),new THREE.Vector3(0,.55,0),.035,stemMat,0);
+  for(let i=0;i<6;i++){
+    const y=-1.15+i*.29, side=i%2?1:-1;
+    smallLeaf(.04*side,y,.01,side,1-.05*i,0);
+    smallLeaf(.13*side,y+.045,.015,-side,.65-.03*i,0);
+  }
+
+  // corymb-like branching: lower branches are longer so flower heads finish near one plane.
+  const branches=[
+    [-.82,.12,.03],[-.58,.36,.04],[-.30,.50,.02],[0,.58,0],
+    [.30,.50,-.02],[.58,.36,-.04],[.82,.12,-.03]
+  ];
+  branches.forEach((b,i)=>{
+    const base=new THREE.Vector3(0,.18,0);
+    const tip=new THREE.Vector3(b[0],b[1]+.64,b[2]);
+    cylBetween(base,tip,.022,stemMat,1);
+    // secondary forks
+    const sgn=b[0]===0?1:Math.sign(b[0]);
+    const t1=tip.clone().add(new THREE.Vector3(.14*sgn,.16,.05));
+    const t2=tip.clone().add(new THREE.Vector3(-.10*sgn,.12,-.05));
+    cylBetween(tip,t1,.014,stemMat,2);
+    cylBetween(tip,t2,.014,stemMat,2);
+    head(tip.x,tip.y+.03,tip.z,1.0,3);
+    head(t1.x,t1.y+.02,t1.z,.82,4);
+    head(t2.x,t2.y+.02,t2.z,.78,4);
+  });
+
+  // extra small heads fill the broad, nearly flat flower table.
+  const extras=[[-.72,.91,.04],[-.46,1.02,-.02],[-.18,1.09,.03],[.16,1.10,-.03],[.45,1.02,.02],[.72,.91,-.04]];
+  extras.forEach((p,i)=>head(p[0],p[1],p[2],.72,4));
+  g.userData.buildStages=5;
+ } if(kind==='arnica'){
+  // PROJECT 19 · ARNICA V2 — clear, cheerful daisy-like mountain flower.
+  const petalMat=new THREE.MeshPhongMaterial({color:0xf3a51f,side:THREE.DoubleSide,shininess:35});
+  const petalMat2=new THREE.MeshPhongMaterial({color:0xffbd2e,side:THREE.DoubleSide,shininess:38});
+  const diskMat=new THREE.MeshPhongMaterial({color:0xd98213,shininess:28});
+  const diskHi=new THREE.MeshPhongMaterial({color:0xf0ad22,shininess:25});
+
+  function arnicaPetalGeo(){
+    const sx=7,sy=12,v=[],idx=[];
+    for(let iy=0;iy<=sy;iy++){
+      const t=iy/sy;
+      // Arnica ray florets: long but broader/softer than the old spikes.
+      const half=.105*(.18+.82*Math.pow(Math.sin(Math.PI*t),.58));
+      for(let ix=0;ix<=sx;ix++){
+        const u=ix/sx*2-1;
+        const x=u*half;
+        let y=.72*t;
+        // tiny irregular notch at the outer end
+        if(t>.88)y-=.025*((t-.88)/.12)*Math.exp(-u*u*18);
+        const z=.035*Math.sin(Math.PI*t)+.045*t*t+.018*u*u;
+        v.push(x,y,z);
+      }
+    }
+    for(let iy=0;iy<sy;iy++)for(let ix=0;ix<sx;ix++){
+      const a=iy*(sx+1)+ix,b=a+1,c=a+sx+1,d=c+1;
+      idx.push(a,c,b,b,c,d);
+    }
+    const geo=new THREE.BufferGeometry();
+    geo.setAttribute('position',new THREE.Float32BufferAttribute(v,3));
+    geo.setIndex(idx);geo.computeVertexNormals();
+    return geo;
+  }
+
+  const pg=arnicaPetalGeo();
+
+  // Two staggered rows make the flower full but still unmistakably arnica-like.
+  [{n:18,r:.31,z:.00,s:1.0,o:0,stage:2,mat:petalMat},
+   {n:15,r:.27,z:.045,s:.86,o:.13,stage:1,mat:petalMat2}].forEach(L=>{
+    for(let i=0;i<L.n;i++){
+      const a=i*Math.PI*2/L.n+L.o;
+      const m=new THREE.Mesh(pg,L.mat);
+      m.scale.set(L.s,L.s,1);
+      m.position.set(Math.cos(a)*L.r,Math.sin(a)*L.r,L.z);
+      m.rotation.z=a-Math.PI/2;
+      m.rotation.x=-.10+.045*Math.sin(i*1.7);
+      m.rotation.y=.035*Math.cos(i*2.1); // slight natural irregularity
+      m.userData.buildStage=L.stage;
+      g.add(m);
+    }
+  });
+
+  // Dense orange-gold composite flower disk.
+  const base=new THREE.Mesh(new THREE.CylinderGeometry(.27,.30,.10,28),diskMat);
+  base.rotation.x=Math.PI/2;base.position.z=.105;base.userData.buildStage=0;g.add(base);
+  for(let i=0;i<55;i++){
+    const a=i*2.39996323,r=.026*Math.sqrt(i);
+    const d=new THREE.Mesh(new THREE.SphereGeometry(.026,7,5),i%3?diskHi:diskMat);
+    d.scale.set(1,1,.65);
+    d.position.set(r*Math.cos(a),r*Math.sin(a),.17+.018*(1-r/.20));
+    d.userData.buildStage=0;g.add(d);
+  }
+
+  g.userData.buildStages=3;
+ } if(kind==='lavender'){
+  // PROJECT 19 · Lavender V2 — upright botanical spike instead of parallel ellipsoid rows.
+  const stemMat=new THREE.MeshPhongMaterial({color:0x4f7d46,shininess:12});
+  const leafMat=new THREE.MeshPhongMaterial({color:0x6f925d,side:THREE.DoubleSide,shininess:8});
+  const budMats=[
+    new THREE.MeshPhongMaterial({color:0x6f4ab8,shininess:24}),
+    new THREE.MeshPhongMaterial({color:0x8b63cf,shininess:28}),
+    new THREE.MeshPhongMaterial({color:0xa17add,shininess:30})
+  ];
+  const stem=new THREE.Mesh(new THREE.CylinderGeometry(.035,.052,3.25,12),stemMat);stem.position.y=-.12;g.add(stem);
+  // Narrow lavender leaves in alternating pairs along the lower stem.
+  for(let i=0;i<6;i++){
+    const y=-1.42+i*.36,ang=i*Math.PI*.72;
+    for(let side=0;side<2;side++){
+      const a=ang+side*Math.PI;
+      const leaf=new THREE.Mesh(new THREE.SphereGeometry(.12,12,8),leafMat);
+      leaf.scale.set(.42,2.45,.18);
+      leaf.position.set(.15*Math.cos(a),y,.15*Math.sin(a));
+      leaf.rotation.z=-Math.cos(a)*.72;leaf.rotation.x=Math.sin(a)*.72;leaf.rotation.y=-a;
+      g.add(leaf);
+    }
+  }
+  // Tapered flower spike. Whorls get smaller toward both ends and rotate gradually.
+  const rows=14;
+  for(let row=0;row<rows;row++){
+    const t=row/(rows-1),y=.18+t*1.55;
+    const bell=Math.sin(Math.PI*Math.min(1,Math.max(0,t)));
+    const radius=.105+.12*bell;
+    const count=(row<2||row>11)?4:5;
+    for(let j=0;j<count;j++){
+      const a=j*Math.PI*2/count+row*.57;
+      const bud=new THREE.Mesh(new THREE.SphereGeometry(.095,10,8),budMats[(row+j)%budMats.length]);
+      bud.scale.set(.72,1.12,.68);
+      bud.position.set(radius*Math.cos(a),y+.018*Math.sin(a*2),radius*Math.sin(a));
+      bud.rotation.z=-Math.cos(a)*.42;bud.rotation.x=Math.sin(a)*.42;
+      g.add(bud);
+      // Tiny outward petal/lip gives each bud a flower-like silhouette.
+      if((row+j)%2===0){
+        const lip=new THREE.Mesh(new THREE.SphereGeometry(.065,9,7),budMats[(row+j+1)%budMats.length]);
+        lip.scale.set(1.15,.52,.62);
+        lip.position.set((radius+.085)*Math.cos(a),y-.015,(radius+.085)*Math.sin(a));
+        lip.rotation.y=-a;g.add(lip);
+      }
+    }
+  }
+  // Compact crown at the top of the spike.
+  for(let j=0;j<5;j++){
+    const a=j*Math.PI*2/5+.3,bud=new THREE.Mesh(new THREE.SphereGeometry(.085,10,8),budMats[j%3]);
+    bud.scale.set(.7,1.25,.7);bud.position.set(.085*Math.cos(a),1.82,.085*Math.sin(a));g.add(bud);
+  }
+  // Keep the spike upright in the Natural Garden camera.
+  g.rotation.x=-.18;g.rotation.z=.06;
+ }
  g.rotation.x=-.34;return g
 }
 let naturalPlant=null,naturalKind='sunflower';
 const naturalInfo={
  sunflower:{title:'🌻 SONNENBLUME',body:'Im großen Blütenkopf sitzen sehr viele kleine Einzelblüten. Unser Modell zeigt Phyllotaxis, Spiralen und den goldenen Winkel. Fibonacci-Zahlen sind hier eine Vergleichsebene – echte Blüten variieren.',mission:'Schalte FIBONACCI VISUELL aus, suche selbst Spiralen und vergleiche danach mit den Hilfslinien.'},
- rose:{title:'🌹 ROSE',body:'Rosenblüten besitzen eine radiale Grundordnung. Je nach Art und Sorte kann die Zahl der Blütenblätter stark variieren. Unser 3D-Modell nutzt mehrere versetzte Ringe, um diese Überlagerung sichtbar zu machen.',mission:'Drehe die Rose von oben und von der Seite. Findest du die wiederkehrenden Winkel zwischen den Blütenblättern?'},
+ rose:{title:'🌹 ROSE',body:'<b>🌍 Herkunft & Familie</b><br>Rosen gehören zur Familie der Rosengewächse (Rosaceae). Wildrosen sind auf der Nordhalbkugel weit verbreitet; die lange Kulturgeschichte der Gartenrosen verbindet besonders Regionen Europas und Asiens.<br><br><b>🌹 Aufbau der Blüte</b><br>Eine einfache Wildrose besitzt typischerweise fünf Kronblätter. Zuchtrosen können durch umgewandelte Staubblätter sehr viel stärker gefüllt sein. Unser Modell zeigt deshalb mehrere versetzte, nach innen stärker aufgerichtete Blütenblattlagen.<br><br><b>📐 Geometrie</b><br>Von oben erkennt man radiale Ordnung, wiederkehrende Winkel und überlagerte Ringe. Die Zahl der sichtbaren Blütenblätter ist bei echten Rosen nicht auf eine feste Fibonacci-Folge beschränkt.<br><br><b>🏛 Kulturgeschichte</b><br>Rosen werden seit sehr langer Zeit als Zier-, Duft- und Symbolpflanzen kultiviert. Diese kulturelle Ebene ist von der botanischen Beschreibung getrennt.',mission:'Starte AUFBAU bei 0 %. Beobachte zuerst das enge Zentrum, dann die nacheinander öffnenden Blütenblattlagen. Drehe anschließend die Rose von oben und von der Seite und suche radiale Wiederholungen.'},
  lotus:{title:'🪷 LOTUS',body:'Der heilige Lotus besitzt auffällige Blütenblätter um einen markanten, kegelförmigen Blütenboden. In ihm sitzen zahlreiche Fruchtanlagen. Das Modell betont Radialsymmetrie und konzentrische Ebenen.',mission:'Schau genau ins Zentrum: Welche Formen wiederholen sich außen, welche nur in der Mitte?'},
  yarrow:{title:'🌿 SCHAFGARBE',body:'Was wie eine einzelne kleine Blüte aussieht, ist bei der Schafgarbe ein Blütenköpfchen aus mehreren Einzelblüten. Viele solcher Köpfchen bilden zusammen den flachen Blütenstand.',mission:'Zoome hinein: Suche erst ein Köpfchen und danach die größere Struktur aus vielen Köpfchen.'},
  arnica:{title:'🌼 ARNIKA',body:'Arnika gehört zu den Korbblütlern. Der gelbe Blütenkopf besteht aus äußeren Zungenblüten und vielen kleinen Röhrenblüten in der Mitte. Unser Modell macht diese zwei Ebenen sichtbar.',mission:'Vergleiche Rand und Zentrum. Welche Teile wirken wie Blütenblätter, welche sind selbst kleine Blüten?'},
  lavender:{title:'💜 LAVENDEL',body:'Lavendel baut seine Blüten nicht als große Scheibe auf. Viele kleine Blüten stehen in dicht gedrängten, ährenartigen Blütenständen entlang einer Achse. Dadurch entsteht eine ganz andere Geometrie.',mission:'Drehe den Lavendel langsam. Entdeckst du die gestaffelten Blütengruppen rund um die Mittelachse?'}
 };
-function setNaturalPlant(kind){naturalKind=kind;const r=buildSunflower3D();if(naturalPlant){scene.remove(naturalPlant);naturalPlant=null}r.visible=kind==='sunflower';if(kind!=='sunflower'){naturalPlant=buildNaturalPlant(kind);scene.add(naturalPlant);naturalPlant.visible=!!window.__p19NatureActive}const p=document.getElementById('sunflowerArm');if(p){const fib=p.querySelector('#sfFib'),sp=p.querySelector('#sfSpiral');fib.parentElement.style.display=kind==='sunflower'?'':'none';sp.parentElement.style.display=kind==='sunflower'?'':'none';const info=naturalInfo[kind];p.querySelector('#sfKids').innerHTML=`<b style="font-size:15px">${info.title} ENTDECKEN</b><div style="margin-top:8px">${info.body}</div><div style="margin-top:10px;padding:9px;background:#201b08;border-radius:8px"><b>🔎 DEINE MISSION</b><br>${info.mission}</div><div style="margin-top:8px;color:#aebc91;font-size:11px">PROJECT 19: Erst beobachten — dann Muster beschreiben. Das 3D-Modell ist eine vereinfachte Lern-Darstellung, keine botanische Vermessung einer einzelnen Pflanze.</div>`;p.querySelector('#sfKidsBtn').textContent='🌿 PFLANZE ENTDECKEN'}if(kind!=='sunflower'&&naturalPlant){naturalPlant.position.x=1.15}}
+function setNaturalPlant(kind){naturalKind=kind;const r=buildSunflower3D();if(naturalPlant){scene.remove(naturalPlant);naturalPlant=null}r.visible=kind==='sunflower';if(kind!=='sunflower'){naturalPlant=buildNaturalPlant(kind);scene.add(naturalPlant);naturalPlant.visible=!!window.__p19NatureActive}const p=document.getElementById('sunflowerArm');if(p){const fib=p.querySelector('#sfFib'),sp=p.querySelector('#sfSpiral');fib.parentElement.style.display=kind==='sunflower'?'':'none';sp.parentElement.style.display=kind==='sunflower'?'':'none';const info=naturalInfo[kind];p.querySelector('#sfKids').innerHTML=`<b style="font-size:15px">${info.title} ENTDECKEN</b><div style="margin-top:8px">${info.body}</div><div style="margin-top:10px;padding:9px;background:#201b08;border-radius:8px"><b>🔎 DEINE MISSION</b><br>${info.mission}</div><div style="margin-top:8px;color:#aebc91;font-size:11px">PROJECT 19: Erst beobachten — dann Muster beschreiben. Das 3D-Modell ist eine vereinfachte Lern-Darstellung, keine botanische Vermessung einer einzelnen Pflanze.</div>`;p.querySelector('#sfKidsBtn').textContent='🌿 PFLANZE ENTDECKEN'}if(kind!=='sunflower'&&naturalPlant){naturalPlant.position.x=1.15}updateSunflower()}
 
 function ensureSunflowerPanel(){
  let p=document.getElementById('sunflowerArm');if(p)return p;p=document.createElement('div');p.id='sunflowerArm';p.style.cssText='display:none;position:fixed;z-index:4400;left:0;top:0;right:0;pointer-events:none;color:#eef;font:13px system-ui,Segoe UI,sans-serif';
  p.innerHTML=`<div style="pointer-events:auto;position:absolute;left:18px;top:14px;width:min(390px,calc(100vw - 62px));max-height:calc(100vh - 45px);overflow:auto;background:#09150de8;border:1px solid #54733c;border-radius:14px;padding:13px"><b style="font-size:18px">PROJECT 19 · ARM IV · NATURAL GARDEN</b><div style="font-size:11px;color:#b7d39e;margin:4px 0 10px">Natural Geometry · 6 Pflanzen · interaktives 3D-Labor<br><span style="color:#8fa77c">Drag = frei drehen · Mausrad = Zoom</span></div><div style="margin:8px 0;padding:8px;background:#0b1d10;border:1px solid #36583a;border-radius:9px"><b>🌿 PFLANZE</b><br><select id="sfPlant" style="margin-top:5px;width:100%;padding:6px"><option value="sunflower">🌻 Sonnenblume</option><option value="rose">🌹 Rose</option><option value="lotus">🪷 Lotus</option><option value="yarrow">🌿 Schafgarbe</option><option value="arnica">🌼 Arnika</option><option value="lavender">💜 Lavendel</option></select></div><div style="margin:8px 0"><button id="sfBack" style="width:100%;font-weight:800;padding:9px 10px">← ZURÜCK ZU DEN ANDEREN ARMS</button></div><div style="display:flex;gap:6px;flex-wrap:wrap"><button id="sfPlay">▶ Aufbau</button><button id="sfFull">Alles sichtbar</button><button id="sfReset">Ansicht Reset</button></div><div style="margin:10px 0"><label>Aufbau <input id="sfBuild" type="range" min="0" max="100" value="100" style="width:220px"></label> <span id="sfBv">100%</span></div><div style="margin:10px 0"><label>Drehgeschwindigkeit <input id="sfSpeed" type="range" min="0" max="5" step=".1" value="1" style="width:180px"></label> <span id="sfSv">1.0×</span></div><div style="margin:10px 0"><label>Aufbau-Tempo <input id="sfBuildSpeed" type="range" min=".1" max="2" step=".1" value=".5" style="width:180px"></label> <span id="sfBuildSv">0.5×</span></div><div style="display:flex;gap:12px;flex-wrap:wrap"><label><input id="sfPetals" type="checkbox" checked> Blütenblätter</label><label><input id="sfSeeds" type="checkbox" checked> Samen</label><label><input id="sfSpiral" type="checkbox" checked> Spiral-Overlay</label><label><input id="sfFib" type="checkbox"> FIBONACCI VISUELL</label></div><div id="sfFibLegend" style="display:none;margin-top:9px;padding:9px;background:#181207;border:1px solid #6f5521;border-radius:9px;line-height:1.55"><b>FIBONACCI · VISUELLE EBENE</b><br><span style="color:#ffd166">↻ 21 Spiralarme</span> · <span style="color:#ff8c42">↺ 34 Spiralarme</span><br><span style="font-size:12px">1 → 1 → 2 → 3 → 5 → 8 → 13 → 21 → 34 → 55 → 89</span><br><span style="color:#bfae82;font-size:11px">Die farbigen Linien sind eine mathematische Vergleichsebene über dem Phyllotaxis-Modell; reale Blüten können andere Spiralzählungen zeigen.</span></div><div id="sfMath" style="margin-top:10px;padding:9px;background:#071009;border-radius:9px;line-height:1.55"><b>PHYLLOTAXIS-MODELL</b><br>Goldener Winkel ≈ 137.5078°<br>Modell: θₙ = n · 137.5078° · rₙ ∝ √n<br><span style="color:#9fb58d">Das Overlay zeigt ein mathematisches Idealmodell zum Vergleich mit der organischen Blüte; reale Sonnenblumen variieren.</span></div><div style="margin-top:10px"><button id="sfKidsBtn">🌿 PFLANZE ENTDECKEN</button></div><div id="sfKids" style="display:none;margin-top:9px;padding:11px;background:#11180c;border:1px solid #6f873f;border-radius:10px;line-height:1.55"><b style="font-size:15px">🌻 SONNENBLUME ENTDECKEN</b><div style="margin-top:7px"><b>🌎 Woher kommt sie?</b><br>Die Kultur-Sonnenblume <i>Helianthus annuus</i> stammt aus Nordamerika. Menschen bauten sie dort schon lange an, bevor sie nach Europa kam.</div><div style="margin-top:8px"><b>🌀 Warum sieht die Mitte so geordnet aus?</b><br>Im Blütenkopf sitzen sehr viele kleine Einzelblüten dicht nebeneinander. Ihre Anordnung kann sichtbare Spiralen entstehen lassen.</div><div style="margin-top:8px"><b>🔢 Was hat Fibonacci damit zu tun?</b><br>Beim Zählen der Spiralen findet man bei Sonnenblumen häufig Zahlen nahe aufeinanderfolgenden Fibonacci-Zahlen, zum Beispiel 34 und 55 oder 55 und 89. Nicht jede echte Blume folgt diesen Zahlen exakt.</div><div style="margin-top:8px"><b>📐 Der goldene Winkel</b><br>Unser Modell setzt neue Punkte jeweils ungefähr <b>137,5°</b> versetzt. Dadurch verteilen sie sich sehr gleichmäßig um das Zentrum.</div><div style="margin-top:10px;padding:9px;background:#201b08;border-radius:8px"><b>🔎 DEINE MISSION</b><br>1. Schalte <b>FIBONACCI VISUELL</b> aus.<br>2. Schau nur auf die Samen und suche selbst Spiralen.<br>3. Schalte Fibonacci wieder ein.<br>4. Vergleiche deine Entdeckung mit den farbigen Linien.</div><div style="margin-top:8px;color:#aebc91;font-size:11px">PROJECT 19 trennt Beobachtung und mathematisches Modell: Erst selbst entdecken — dann die Hilfslinien einschalten.</div></div><button id="sfExitFixed" style="pointer-events:auto;position:fixed;right:18px;top:16px;z-index:4505;padding:11px 17px;border:1px solid #67e8f9;background:#102738;color:#fff;border-radius:999px;font-weight:800;cursor:pointer;box-shadow:0 5px 20px #0008">← ZURÜCK ZUM 3D-LAB</button></div>`;document.body.appendChild(p);const q=id=>p.querySelector('#'+id);
- q('sfPlant').onchange=e=>setNaturalPlant(e.target.value);const leaveNaturalGarden=()=>p19LeaveNature();q('sfBack').onclick=leaveNaturalGarden;q('sfExitFixed').onclick=leaveNaturalGarden;q('sfKidsBtn').onclick=()=>{const box=q('sfKids');const open=box.style.display!=='none';box.style.display=open?'none':'block';q('sfKidsBtn').textContent=open?'🌿 PFLANZE ENTDECKEN':'✕ ENTDECKER-INFO SCHLIESSEN'};q('sfSpeed').oninput=e=>{q('sfSv').textContent=(+e.target.value).toFixed(1)+'×'};q('sfBuildSpeed').oninput=e=>{q('sfBuildSv').textContent=(+e.target.value).toFixed(1)+'×'};q('sfPlay').onclick=()=>{sunflowerRunning=!sunflowerRunning;q('sfPlay').textContent=sunflowerRunning?'Ⅱ Pause':'▶ Aufbau'};q('sfFull').onclick=()=>{sunflowerBuild=1;sunflowerRunning=false;updateSunflower()};q('sfReset').onclick=()=>{camera.position.set(0,0,7.2);if(controls&&controls.target){controls.target.set(0,0,0);controls.update()}if(sunflowerRoot)sunflowerRoot.rotation.set(-.34,0,0)};q('sfBuild').oninput=e=>{sunflowerRunning=false;sunflowerBuild=+e.target.value/100;updateSunflower()};['sfPetals','sfSeeds','sfSpiral','sfFib'].forEach(id=>q(id).onchange=updateSunflower);return p;
+ q('sfPlant').onchange=e=>setNaturalPlant(e.target.value);const leaveNaturalGarden=()=>p19LeaveNature();q('sfBack').onclick=leaveNaturalGarden;q('sfExitFixed').onclick=leaveNaturalGarden;q('sfKidsBtn').onclick=()=>{const box=q('sfKids');const open=box.style.display!=='none';box.style.display=open?'none':'block';q('sfKidsBtn').textContent=open?'🌿 PFLANZE ENTDECKEN':'✕ ENTDECKER-INFO SCHLIESSEN'};q('sfSpeed').oninput=e=>{q('sfSv').textContent=(+e.target.value).toFixed(1)+'×'};q('sfBuildSpeed').oninput=e=>{q('sfBuildSv').textContent=(+e.target.value).toFixed(1)+'×'};q('sfPlay').onclick=()=>{if(!sunflowerRunning&&sunflowerBuild>=.999)sunflowerBuild=0;sunflowerRunning=!sunflowerRunning;updateSunflower();q('sfPlay').textContent=sunflowerRunning?'Ⅱ Pause':'▶ Aufbau'};q('sfFull').onclick=()=>{sunflowerBuild=1;sunflowerRunning=false;updateSunflower()};q('sfReset').onclick=()=>{camera.position.set(0,0,7.2);if(controls&&controls.target){controls.target.set(0,0,0);controls.update()}if(sunflowerRoot)sunflowerRoot.rotation.set(-.34,0,0)};q('sfBuild').oninput=e=>{sunflowerRunning=false;sunflowerBuild=+e.target.value/100;updateSunflower()};['sfPetals','sfSeeds','sfSpiral','sfFib'].forEach(id=>q(id).onchange=updateSunflower);return p;
 }
 function updateSunflower(){
   const r=buildSunflower3D(),p=ensureSunflowerPanel();
@@ -4615,6 +4939,28 @@ function updateSunflower(){
   if(ov){ov.visible=!!(cbSpiral&&cbSpiral.checked&&f>.72);ov.children.forEach(o=>{if(o&&o.material&&'opacity' in o.material)o.material.opacity=Math.max(0,Math.min(.72,(f-.72)*2.8))})}
   if(fib){fib.visible=!!(cbFib&&cbFib.checked&&f>.72);fib.children.forEach(o=>{if(o&&o.material&&'opacity' in o.material)o.material.opacity=Math.max(0,Math.min(.95,(f-.72)*3.4))})}
   if(legend)legend.style.display=(cbFib&&cbFib.checked)?'block':'none';
+  // Natural plants use the same Aufbau control as the sunflower.
+  // Reveal their meshes progressively in creation order (stem/leaves first, flowers after).
+  if(naturalKind!=='sunflower'&&naturalPlant){
+    naturalPlant.visible=!!window.__p19NatureActive;
+    const parts=naturalPlant.children||[], n=Math.max(1,parts.length);
+    const stages=naturalPlant.userData&&naturalPlant.userData.buildStages;
+    if(stages){
+      parts.forEach((obj,i)=>{
+        if(!obj)return;
+        const st=Number.isFinite(obj.userData&&obj.userData.buildStage)?obj.userData.buildStage:Math.floor(i/n*stages);
+        const start=st/stages, end=(st+1)/stages;
+        obj.visible=f>start;
+        if(obj.visible){
+          const local=Math.max(.05,Math.min(1,(f-start)/Math.max(.001,end-start)));
+          obj.scale.set(obj.scale.x,obj.scale.y,obj.scale.z);
+          obj.material && (obj.material.opacity=1);
+        }
+      });
+    }else{
+      parts.forEach((obj,i)=>{if(obj)obj.visible=(i/n)<f;});
+    }
+  }
 }
 function sunflowerLoop(now){const dt=Math.min(.05,(now-sunflowerLast)/1000);sunflowerLast=now;if(sunflowerRunning&&window.__p19NatureActive){const p=document.getElementById('sunflowerArm'),bs=p&&p.querySelector('#sfBuildSpeed');sunflowerBuild+=dt*.20*(bs?+bs.value:.5);if(sunflowerBuild>=1){sunflowerBuild=1;sunflowerRunning=false;const p=document.getElementById('sunflowerArm');if(p)p.querySelector('#sfPlay').textContent='▶ Aufbau'}updateSunflower()}requestAnimationFrame(sunflowerLoop)}requestAnimationFrame(sunflowerLoop);
 function p19EnterNature(){
@@ -4631,6 +4977,113 @@ function p19EnterNature(){
 function p19LeaveNature(){window.__p19NatureActive=false;sunflowerRunning=false;if(sunflowerRoot)sunflowerRoot.visible=false;if(naturalPlant)naturalPlant.visible=false;const p=document.getElementById('sunflowerArm');if(p)p.style.display='none';if(typeof setArmMode==='function')setArmMode(1);else{const ui=document.getElementById('ui'),snd=document.getElementById('soundPanel');if(ui)ui.style.display='block';if(snd)snd.style.display='block';if(typeof root!=='undefined'&&root)root.visible=true;if(typeof axes!=='undefined'&&axes)axes.visible=true}}
 let p19NatLast=performance.now();(function p19NatSpin(now){const dt=Math.min(.05,(now-p19NatLast)/1000);p19NatLast=now;if(window.__p19NatureActive&&!sunflowerRunning){const p=document.getElementById('sunflowerArm'),s=p&&p.querySelector('#sfSpeed'),v=s?+s.value:1;if(sunflowerRoot&&sunflowerRoot.visible)sunflowerRoot.rotation.z+=.08*dt*v;if(naturalPlant&&naturalPlant.visible)naturalPlant.rotation.z+=.08*dt*v}requestAnimationFrame(p19NatSpin)})(performance.now());
 window.p19EnterNaturalGarden=p19EnterNature;
+
+// PROJECT 19 · NATURAL GARDEN FREE OBJECT ROTATION
+// Applies to ALL six plants:
+// drag = free object rotation (X/Y), SHIFT+drag = move, wheel = zoom, double click = full reset.
+(()=>{
+  const el=(typeof renderer!=='undefined'&&renderer&&renderer.domElement)?renderer.domElement:null;
+  if(!el || window.__p19NatureFree360Installed)return;
+  window.__p19NatureFree360Installed=true;
+
+  let mode=null,lastX=0,lastY=0,pid=null;
+
+  function activePlant(){
+    return naturalKind==='sunflower' ? sunflowerRoot : naturalPlant;
+  }
+  function down(e){
+    if(!window.__p19NatureActive || e.button!==0)return;
+    const obj=activePlant(); if(!obj)return;
+    mode=e.shiftKey?'pan':'rotate';
+    lastX=e.clientX; lastY=e.clientY; pid=e.pointerId;
+    if(controls)controls.enabled=false;
+    try{el.setPointerCapture(pid)}catch(_){}
+    e.preventDefault();e.stopImmediatePropagation();
+  }
+  function move(e){
+    if(!mode || e.pointerId!==pid)return;
+    const obj=activePlant(); if(!obj)return;
+    const dx=e.clientX-lastX,dy=e.clientY-lastY;
+    if(mode==='pan'){
+      const dist=(camera&&controls)?camera.position.distanceTo(controls.target):7;
+      const s=Math.max(.0025,dist*.00135);
+      obj.position.x+=dx*s; obj.position.y-=dy*s;
+    }else{
+      // true object manipulation, not camera orbit:
+      // vertical drag tilts around X; horizontal drag spins around Y.
+      const qx=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),dy*.010);
+      const qy=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),dx*.010);
+      obj.quaternion.premultiply(qy).premultiply(qx);
+    }
+    lastX=e.clientX;lastY=e.clientY;
+    e.preventDefault();e.stopImmediatePropagation();
+  }
+  function up(e){
+    if(!mode)return;
+    mode=null;pid=null;
+    if(controls)controls.enabled=true;
+    e.preventDefault();e.stopImmediatePropagation();
+  }
+  function reset(e){
+    if(!window.__p19NatureActive)return;
+    const obj=activePlant(); if(!obj)return;
+    obj.position.set(naturalKind==='sunflower'?0:1.15,0,0);
+    obj.quaternion.identity();
+    // Preserve the intended default presentation angle used by non-sunflower plants.
+    if(naturalKind!=='sunflower')obj.rotation.x=-.34;
+    if(controls){controls.target.set(0,0,0);controls.update();}
+    e.preventDefault();e.stopImmediatePropagation();
+  }
+
+  // Capture phase makes object manipulation win over OrbitControls in Nature mode.
+  el.addEventListener('pointerdown',down,true);
+  el.addEventListener('pointermove',move,true);
+  el.addEventListener('pointerup',up,true);
+  el.addEventListener('pointercancel',up,true);
+  el.addEventListener('dblclick',reset,true);
+})();
+
+
+// PROJECT 19 · Nature object pan
+// Normal drag keeps OrbitControls rotation. SHIFT + left drag moves the active plant.
+// Double click recenters the active plant.
+(()=>{
+  let dragging=false,lastX=0,lastY=0;
+  const el=(typeof renderer!=='undefined'&&renderer&&renderer.domElement)?renderer.domElement:null;
+  if(!el)return;
+  el.addEventListener('pointerdown',e=>{
+    if(true)return; // superseded by PROJECT 19 free-360 controller
+    dragging=true;lastX=e.clientX;lastY=e.clientY;
+    if(controls)controls.enabled=false;
+    try{el.setPointerCapture(e.pointerId)}catch(_){}
+    e.preventDefault();e.stopPropagation();
+  },true);
+  el.addEventListener('pointermove',e=>{
+    if(!dragging)return;
+    const obj=(naturalKind==='sunflower')?sunflowerRoot:naturalPlant;
+    if(obj){
+      const dx=e.clientX-lastX,dy=e.clientY-lastY;
+      const scale=Math.max(.0025,(camera.position.distanceTo(controls.target)||7)*.00135);
+      obj.position.x+=dx*scale;
+      obj.position.y-=dy*scale;
+    }
+    lastX=e.clientX;lastY=e.clientY;
+    e.preventDefault();e.stopPropagation();
+  },true);
+  const stop=e=>{
+    if(!dragging)return;
+    dragging=false;if(controls)controls.enabled=true;
+    e.preventDefault();e.stopPropagation();
+  };
+  el.addEventListener('pointerup',stop,true);
+  el.addEventListener('pointercancel',stop,true);
+  el.addEventListener('dblclick',e=>{
+    if(!window.__p19NatureActive)return;
+    const obj=(naturalKind==='sunflower')?sunflowerRoot:naturalPlant;
+    if(obj){obj.position.x=(naturalKind==='sunflower'?0:1.15);obj.position.y=0;}
+  },true);
+})();
+
 
 })();
 </script>
