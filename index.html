@@ -10311,6 +10311,46 @@ background:#07131e;color:#bcd1df;font-weight:850;letter-spacing:.06em;cursor:poi
 })();
 </script>
 
+
+<script id="p19HeaderLangFix">
+(()=>{
+ const H={
+   de:{
+     angel:'PROJECT 19 · ENGELSRAD 72 · PLANETEN + ELEMENTE + 72 SIGILLE + 4 ERZENGEL · KOMPAKT',
+     freq:'🔊 FREQUENZ-LABOR · KLANG × WELLE × GEOMETRIE'
+   },
+   en:{
+     angel:'PROJECT 19 · ANGELIC WHEEL 72 · PLANETS + ELEMENTS + 72 SIGILS + 4 ARCHANGELS · COMPACT',
+     freq:'🔊 FREQUENCY LAB · SOUND × WAVE × GEOMETRY'
+   },
+   it:{
+     angel:'PROJECT 19 · RUOTA ANGELICA 72 · PIANETI + ELEMENTI + 72 SIGILLI + 4 ARCANGELI · COMPATTO',
+     freq:'🔊 LABORATORIO DELLE FREQUENZE · SUONO × ONDA × GEOMETRIA'
+   },
+   tr:{
+     angel:'PROJECT 19 · MELEK ÇARKI 72 · GEZEGENLER + ELEMENTLER + 72 SİGİL + 4 BAŞMELEK · KOMPAKT',
+     freq:'🔊 FREKANS LABORATUVARI · SES × DALGA × GEOMETRİ'
+   }
+ };
+ const lang=()=>localStorage.getItem('p19lang')||'de';
+
+ function apply(){
+   const t=H[lang()]||H.de;
+   document.querySelectorAll('h1,h2,h3,div').forEach(el=>{
+     if(el.children.length) return;
+     const x=(el.textContent||'').trim();
+     if(/PROJECT 19.*(?:MELEK ÇARKI|ENGELSRAD|ANGELIC WHEEL|RUOTA ANGELICA).*72/i.test(x)){
+       if(el.textContent!==t.angel) el.textContent=t.angel;
+     } else if(/(?:FREKANS LABORATUVARI|FREQUENZ.LABOR|FREQUENCY LAB|LABORATORIO DELLE FREQUENZE).*(?:SOUND|KLANG|SUONO|SES)/i.test(x)){
+       if(el.textContent!==t.freq) el.textContent=t.freq;
+     }
+   });
+ }
+ apply();
+ setInterval(apply,400);
+})();
+</script>
+
 </body></html>
 
 <script id="p19AngelDynamicLanguageRefresh">
@@ -10327,5 +10367,46 @@ background:#07131e;color:#bcd1df;font-weight:850;letter-spacing:.06em;cursor:poi
     btn.addEventListener('click',()=>setTimeout(refreshAngelDynamic,80));
   });
   window.addEventListener('storage',e=>{if(e.key==='p19lang') setTimeout(refreshAngelDynamic,80)});
+})();
+</script>
+
+
+<script id="p19RealHeaderFinalFix">
+(()=>{
+ const H={
+  de:{
+   angel:'PROJECT 19 · ENGELSRAD 72 · PLANETEN + ELEMENTE + 72 SIGILLE + 4 ERZENGEL · KOMPAKT',
+   freq:'🔊 FREQUENZ-LABOR · KLANG × WELLE × GEOMETRIE'
+  },
+  en:{
+   angel:'PROJECT 19 · ANGELIC WHEEL 72 · PLANETS + ELEMENTS + 72 SIGILS + 4 ARCHANGELS · COMPACT',
+   freq:'🔊 FREQUENCY LAB · SOUND × WAVE × GEOMETRY'
+  },
+  it:{
+   angel:'PROJECT 19 · RUOTA ANGELICA 72 · PIANETI + ELEMENTI + 72 SIGILLI + 4 ARCANGELI · COMPATTO',
+   freq:'🔊 LABORATORIO DELLE FREQUENZE · SUONO × ONDA × GEOMETRIA'
+  },
+  tr:{
+   angel:'PROJECT 19 · MELEK ÇARKI 72 · GEZEGENLER + ELEMENTLER + 72 SİGİL + 4 BAŞMELEK · KOMPAKT',
+   freq:'🔊 FREKANS LABORATUVARI · SES × DALGA × GEOMETRİ'
+  }
+ };
+ function getLang(){
+   const h=(document.documentElement.lang||'').toLowerCase();
+   if(H[h]) return h;
+   const l=(localStorage.getItem('p19lang')||'de').toLowerCase();
+   return H[l]?l:'de';
+ }
+ function apply(){
+   const t=H[getLang()];
+   const angel=document.querySelector('#angelLab .awTop > b');
+   const freq=document.getElementById('fqTitle');
+   if(angel && angel.textContent!==t.angel) angel.textContent=t.angel;
+   if(freq && freq.textContent!==t.freq) freq.textContent=t.freq;
+ }
+ apply();
+ window.addEventListener('load',apply);
+ document.addEventListener('click',()=>setTimeout(apply,0),true);
+ setInterval(apply,200);
 })();
 </script>
