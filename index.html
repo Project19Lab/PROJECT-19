@@ -285,7 +285,7 @@ function enterLab(ev){if(ev){ev.preventDefault();ev.stopPropagation();} modal.cl
 enterBtn.addEventListener('click',enterLab,{passive:false});
 enterBtn.addEventListener('pointerup',e=>{if(e.pointerType==='touch')enterLab(e)},{passive:false});
 document.getElementById('p19About').onclick=()=>open(about);document.getElementById('p19License').onclick=()=>open(license);document.getElementById('p19Close').onclick=()=>modal.classList.remove('show');document.getElementById('p19AboutBtn').onclick=()=>{portal.style.display='flex';requestAnimationFrame(()=>portal.classList.remove('hide'));modal.classList.remove('show')};})();
-</script><div id='ui'><h2>PROJECT 19.9 • Sacred Geometry 3D-Lab</h2><div class='tiny'>Drag = drehen · Mausrad = Zoom · Punkt anklicken = Anker</div><div class='row'><button id='play'>STOP</button><label>Speed <input id='speed' type='range' min='0' max='5' step='.1' value='.7'></label><span id='sv'>0.7×</span></div><div class='row'><label>Achse <select id='axis'><option>XYZ</option><option>X</option><option>Y</option><option>Z</option></select></label><button id='reverse'>↺ Richtung</button><button id='reset'>Reset</button></div><div id='buildPanel' style='padding:10px;background:#09202b;border:1px solid #2d7184;border-radius:9px;margin:10px 0'><b>19.9 · Aufbau-Reise</b><div class='tiny'>Blume → Metatron → Pentagramm → fünf Körper<br>Inszenierter Aufbau; keine mathematische Ableitung.</div><div class='row'><button id='buildPlay'>▶ Aufbau starten</button><button id='buildBack'>↶ Rückwärts</button><button id='buildHome'>Anfang</button><button id='buildFull'>Alles sichtbar</button></div><div class='row'><button id='arm1View'>ARM 1</button><button id='arm2View'>ARM 2</button><button id='arm3View'>ARM 3 · POLYGONE</button><button id='bothArms'>BEIDE ARME</button></div><div class='row'><button id='pascalArm'>PASCAL ARM · 0–19D</button></div><div class='row' id='natureBtns'><button id='plantsBtn' style='border-color:#65d46e;color:#9cff9f'>🌿 PLANTS</button><button id='animalsBtn' style='border-color:#e5ad43;color:#ffd37b'>🐾 ANIMALS</button></div><div class='row' id='soapBtnRow'><button id='soapBtn' type='button' style='border-color:#7dd3fc;color:#d9f7ff'>🧼 SEIFE</button></div><div id='armStatus' class='tiny'>Ansicht: ARM 1 · Original</div><div class='row'><button id='buildPrev'>◀ Schritt</button><button id='buildNext'>Schritt ▶</button><label><input id='buildLoop' type='checkbox'> Loop</label></div><input id='buildTime' aria-label='Aufbaufortschritt' type='range' min='0' max='100' step='.1' value='100' style='width:100%'><div id='buildStatus' class='tiny'></div><div class='row'><label>Aufbau-Tempo <input id='buildSpeed' type='range' min='.2' max='3' step='.1' value='1'></label><span id='buildSpeedValue'>1.0×</span></div></div><div class='row' id='checks'></div><div class='row'><button id='dual'>Dualitäten</button><button id='phi'>φ-Netz</button><button id='points'>Eckpunkte</button><button id='surfaces'>▰ ARM 1 · FLÄCHENANSICHT</button></div><div class='row'><button id='faceDiag'>□ Flächendiagonalen</button><button id='spaceDiag'>◇ Raumdiagonalen</button></div><div id='colorPanel' style='margin-top:8px;padding:8px;background:#09111f;border-radius:9px'><div class='tiny' style='margin-bottom:6px'>Kantenfarben & Transparenz</div><div id='colorControls'></div><div class='row'><label>Flächendiag. <input id='faceColor' type='color' value='#facc15'></label><label>Raumdiag. <input id='spaceColor' type='color' value='#ffffff'></label></div><button id='resetColors'>Farben zurücksetzen</button></div><div id='sacredPanel' style='margin-top:8px;padding:8px;background:#09111f;border-radius:9px'>
+</script><div id='ui'><h2>PROJECT 19.9 • Sacred Geometry 3D-Lab</h2><div class='tiny'>Drag = drehen · Mausrad = Zoom · Punkt anklicken = Anker</div><div class='row'><button id='play'>STOP</button><label id='p19MainSpeedLabel'><span id='p19MainSpeedText'>Speed</span> <input id='speed' type='range' min='0' max='5' step='.1' value='.7'></label><span id='sv'>0.7×</span></div><div class='row'><label>Achse <select id='axis'><option>XYZ</option><option>X</option><option>Y</option><option>Z</option></select></label><button id='reverse'>↺ Richtung</button><button id='reset'>Reset</button></div><div id='buildPanel' style='padding:10px;background:#09202b;border:1px solid #2d7184;border-radius:9px;margin:10px 0'><b>19.9 · Aufbau-Reise</b><div class='tiny'>Blume → Metatron → Pentagramm → fünf Körper<br>Inszenierter Aufbau; keine mathematische Ableitung.</div><div class='row'><button id='buildPlay'>▶ Aufbau starten</button><button id='buildBack'>↶ Rückwärts</button><button id='buildHome'>Anfang</button><button id='buildFull'>Alles sichtbar</button></div><div class='row'><button id='arm1View'>ARM 1</button><button id='arm2View'>ARM 2</button><button id='arm3View'>ARM 3 · POLYGONE</button><button id='bothArms'>BEIDE ARME</button></div><div class='row'><button id='pascalArm'>PASCAL ARM · 0–19D</button></div><div class='row' id='natureBtns'><button id='plantsBtn' style='border-color:#65d46e;color:#9cff9f'>🌿 PLANTS</button><button id='animalsBtn' style='border-color:#e5ad43;color:#ffd37b'>🐾 ANIMALS</button></div><div class='row' id='soapBtnRow'><button id='soapBtn' type='button' style='border-color:#7dd3fc;color:#d9f7ff'>🧼 SEIFE</button></div><div id='armStatus' class='tiny'>Ansicht: ARM 1 · Original</div><div class='row'><button id='buildPrev'>◀ Schritt</button><button id='buildNext'>Schritt ▶</button><label><input id='buildLoop' type='checkbox'> Loop</label></div><input id='buildTime' aria-label='Aufbaufortschritt' type='range' min='0' max='100' step='.1' value='100' style='width:100%'><div id='buildStatus' class='tiny'></div><div class='row'><label>Aufbau-Tempo <input id='buildSpeed' type='range' min='.2' max='3' step='.1' value='1'></label><span id='buildSpeedValue'>1.0×</span></div></div><div class='row' id='checks'></div><div class='row'><button id='dual'>Dualitäten</button><button id='phi'>φ-Netz</button><button id='points'>Eckpunkte</button><button id='surfaces'>▰ ARM 1 · FLÄCHENANSICHT</button></div><div class='row'><button id='faceDiag'>□ Flächendiagonalen</button><button id='spaceDiag'>◇ Raumdiagonalen</button></div><div id='colorPanel' style='margin-top:8px;padding:8px;background:#09111f;border-radius:9px'><div class='tiny' style='margin-bottom:6px'>Kantenfarben & Transparenz</div><div id='colorControls'></div><div class='row'><label>Flächendiag. <input id='faceColor' type='color' value='#facc15'></label><label>Raumdiag. <input id='spaceColor' type='color' value='#ffffff'></label></div><button id='resetColors'>Farben zurücksetzen</button></div><div id='sacredPanel' style='margin-top:8px;padding:8px;background:#09111f;border-radius:9px'>
 <div id='sgTitle' class='tiny' style='margin-bottom:6px'>19.77 · SACRED GEOMETRY — ALLES GLEICHZEITIG</div>
 <div class='row'><label><input id='sgPent' type='checkbox' checked> <span id='sgPentTxt'>Pentagramm 3D</span></label><label><input id='sgFlower' type='checkbox' checked> <span id='sgFlowerTxt'>Blume des Lebens</span></label></div>
 <div class='row'><label><input id='sgMetatron' type='checkbox' checked> <span id='sgMetatronTxt'>Metatrons Würfel</span></label><label><input id='sgNodes' type='checkbox' checked> <span id='sgNodesTxt'>13 Knoten</span></label></div>
@@ -10244,6 +10244,70 @@ background:#07131e;color:#bcd1df;font-weight:850;letter-spacing:.06em;cursor:poi
  obs.observe(document.body,{subtree:true,childList:true,characterData:true});
  window.addEventListener('load',forceProgress);
  forceProgress();
+})();
+</script>
+
+
+<script id="p19LastLangFixes">
+(()=>{
+ const TXT={
+  de:{direction:'↺ Richtung',reset:'Reset',start:'▶ Aufbau starten',back:'↶ Rückwärts',home:'Anfang',all:'Alles sichtbar'},
+  en:{direction:'↺ Direction',reset:'Reset',start:'▶ Start build',back:'↶ Reverse',home:'Start',all:'Show all'},
+  it:{direction:'↺ Direzione',reset:'Reset',start:'▶ Avvia costruzione',back:'↶ Indietro',home:'Inizio',all:'Mostra tutto'},
+  tr:{direction:'↺ Yön',reset:'Sıfırla',start:'▶ Kurulumu başlat',back:'↶ Geri',home:'Başlangıç',all:'Tümünü göster'}
+ };
+ const lang=()=>localStorage.getItem('p19lang')||'de';
+ function set(id,val){const e=document.getElementById(id); if(e && e.textContent!==val)e.textContent=val}
+ function apply(){
+   const t=TXT[lang()]||TXT.de;
+   set('reverse',t.direction);
+   set('reset',t.reset);
+   set('buildPlay',t.start);
+   set('buildBack',t.back);
+   set('buildHome',t.home);
+   set('buildFull',t.all);
+ }
+ apply();
+ new MutationObserver(apply).observe(document.body,{subtree:true,childList:true,characterData:true});
+ setInterval(apply,500);
+})();
+</script>
+
+
+<script id="p19FinalSpeedLangFix">
+(()=>{
+ const S={de:'Geschwindigkeit',en:'Speed',it:'Velocità',tr:'Hız'};
+ const lang=()=>localStorage.getItem('p19lang')||'de';
+
+ function apply(){
+   const wanted=S[lang()]||S.de;
+   document.querySelectorAll('label,span,div,p').forEach(el=>{
+     if(el.children.length) return;
+     const t=(el.textContent||'').trim();
+     if(/^(Speed|Geschwindigkeit|Velocità|Hız)$/i.test(t) && el.textContent!==wanted){
+       el.textContent=wanted;
+     }
+   });
+ }
+ apply();
+ new MutationObserver(apply).observe(document.body,{subtree:true,childList:true,characterData:true});
+ setInterval(apply,400);
+})();
+</script>
+
+
+<script id="p19MainSpeedSafeLang">
+(()=>{
+ const words={de:'Geschwindigkeit',en:'Speed',it:'Velocità',tr:'Hız'};
+ function apply(){
+   const el=document.getElementById('p19MainSpeedText');
+   if(!el) return;
+   const lang=localStorage.getItem('p19lang')||'de';
+   el.textContent=words[lang]||words.de;
+ }
+ window.addEventListener('load',apply);
+ apply();
+ setInterval(apply,500);
 })();
 </script>
 
