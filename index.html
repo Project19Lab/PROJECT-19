@@ -262,6 +262,27 @@ body:has(#cosmicLab.show) [id*="gematria"][id*="Btn"]{display:none!important}
 }
 </style>
 
+
+<style id="p19AquariusOverlayFix">
+#p19AquariusWatermark{
+  position:fixed;
+  left:50%;
+  top:54%;
+  transform:translate(-50%,-50%);
+  width:min(68vw,880px);
+  height:min(68vw,880px);
+  pointer-events:none;
+  z-index:4;
+  opacity:.115;
+  background:url("./aquarius.png") center/contain no-repeat;
+  mix-blend-mode:screen;
+  -webkit-mask-image:radial-gradient(circle at center,#000 48%,rgba(0,0,0,.82) 62%,transparent 79%);
+  mask-image:radial-gradient(circle at center,#000 48%,rgba(0,0,0,.82) 62%,transparent 79%);
+}
+#p19portal{z-index:99999!important;}
+#ui,.ui,.panel,.hud,.controls,.topbar,.toolbar{position:relative;z-index:6;}
+</style>
+
 </head><body><style>
 #p19portal{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 38%,#123047 0,#08121f 36%,#03070d 78%);color:#eef;transition:opacity .65s ease,visibility .65s ease;font-family:system-ui,Segoe UI,Arial;overflow:auto}
 #p19portal.hide{opacity:0;visibility:hidden;pointer-events:none}.p19stars{position:absolute;inset:0;opacity:.32;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:47px 47px;mask-image:linear-gradient(to bottom,#000,transparent)}
@@ -5659,7 +5680,10 @@ function showNode(s,el){clearActive();el.classList.add('active');selectedLetter=
 function showPath(p,el){clearActive();el.classList.add('active');selectedLetter=p[2];toGem.style.display='block';toGem.style.width='100%';toGem.style.marginTop='12px';const t=T[lang()]||T.de,a=byNum[p[0]],b=byNum[p[1]],idx=P.indexOf(p)+1;card.classList.add('magicCard');card.innerHTML=`<div class="treeMagicType">${t.path||'Pfad'} · ${idx}/22</div><div class="treeMagicOrb">${p[2]}</div><div class="treeMagicName">${p[3]}</div><div class="treeMagicHeb">${p[2]}</div><div class="treeMagicRule"></div><div class="treeMagicFacts"><div class="treeMagicFact"><b>${t.value||'Wert'}</b>${p[4]}</div><div class="treeMagicFact"><b>${t.connection||'Verbindung'}</b>${a[1]} ↔ ${b[1]}</div><div class="treeMagicFact"><b>${t.letter||'Buchstabe'}</b>${p[2]} · ${p[3]}</div><div class="treeMagicFact"><b>${t.path||'Pfad'}</b>${idx} / 22</div></div><p class="treeMagicDesc">${t.pathNote||T.de.pathNote}</p><button type="button" class="treeMagicGemBtn" id="treeMagicGemBtn">🔢 ${lang()==='tr'?'HARF → GEMATRIA':lang()==='it'?'LETTERA → GEMATRIA':lang()==='en'?'LETTER → GEMATRIA':'BUCHSTABE → GEMATRIA'}</button>`;const mb=document.getElementById('treeMagicGemBtn');if(mb)mb.onclick=()=>toGem.click()}
 function lang(){return localStorage.getItem('p19lang')||'de'}
 const T={de:{close:'✕ Zurück zum Lab',title:'Tree of Life · 10 Sephiroth · 22 Pfade',intro:'Interaktive Darstellung des kabbalistischen Lebensbaums. Die Pfad-Buchstaben folgen einer verbreiteten hermetisch-qabalistischen Zuordnung; andere Traditionen können abweichen.',legend:'Knoten oder Pfad anklicken · Pfad-Buchstaben können direkt an das Gematria Lab übergeben werden.',info:'Auswahl',gem:'🔢 Buchstabe → Gematria',disc:'Historische, mystische und symbolische Zuordnungen werden hier als Tradition/Interpretation dargestellt, nicht als naturwissenschaftlicher Nachweis.',welcomeTitle:'Tree of Life',welcome:'Wähle eine Sephira oder einen der 22 Pfade.',sephira:'Sephira',nodeNote:'Knoten des Lebensbaums. Diese Ansicht hält traditionelle Namen und symbolische Bezeichnungen getrennt von mathematischen Aussagen.',value:'Wert',pathNote:'Hebräischer Buchstabe dieses Pfades in der hier verwendeten hermetisch-qabalistischen Pfadzuordnung.',number:'Nummer',quality:'Bezeichnung',position:'Position',nodePosition:'Knoten im Lebensbaum',system:'System',treeSystem:'Kabbalistischer Lebensbaum',path:'Pfad',connection:'Verbindung',letter:'Buchstabe'},en:{close:'✕ Back to Lab',title:'Tree of Life · 10 Sephiroth · 22 Paths',intro:'Interactive representation of the Kabbalistic Tree of Life. Path letters follow a common Hermetic-Qabalistic attribution; other traditions may differ.',legend:'Click a node or path · path letters can be sent directly to the Gematria Lab.',info:'Selection',gem:'🔢 Letter → Gematria',disc:'Historical, mystical and symbolic correspondences are presented as tradition/interpretation, not as scientific evidence.',welcomeTitle:'Tree of Life',welcome:'Choose a Sephira or one of the 22 paths.',sephira:'Sephira',nodeNote:'Node of the Tree of Life. Traditional names and symbolic designations are kept separate from mathematical claims.',value:'Value',pathNote:'Hebrew letter of this path in the Hermetic-Qabalistic attribution used here.',number:'Number',quality:'Designation',position:'Position',nodePosition:'Node in the Tree of Life',system:'System',treeSystem:'Kabbalistic Tree of Life',path:'Path',connection:'Connection',letter:'Letter'},it:{close:'✕ Torna al Lab',title:'Albero della Vita · 10 Sephiroth · 22 Sentieri',intro:'Rappresentazione interattiva dell’Albero della Vita cabalistico. Le lettere dei sentieri seguono una comune attribuzione ermetico-qabalistica; altre tradizioni possono differire.',legend:'Clicca un nodo o un sentiero · le lettere possono essere inviate direttamente al Gematria Lab.',info:'Selezione',gem:'🔢 Lettera → Gematria',disc:'Le corrispondenze storiche, mistiche e simboliche sono presentate come tradizione/interpretazione, non come prova scientifica.',welcomeTitle:'Albero della Vita',welcome:'Scegli una Sephira o uno dei 22 sentieri.',sephira:'Sephira',nodeNote:'Nodo dell’Albero della Vita. I nomi tradizionali e le designazioni simboliche restano separati dalle affermazioni matematiche.',value:'Valore',pathNote:'Lettera ebraica di questo sentiero nell’attribuzione ermetico-qabalistica usata qui.',number:'Numero',quality:'Designazione',position:'Posizione',nodePosition:'Nodo nell’Albero della Vita',system:'Sistema',treeSystem:'Albero della Vita cabalistico',path:'Sentiero',connection:'Collegamento',letter:'Lettera'},tr:{close:'✕ Lab’a dön',title:'Hayat Ağacı · 10 Sefirot · 22 Yol',intro:'Kabalistik Hayat Ağacının etkileşimli gösterimi. Yol harfleri yaygın bir Hermetik-Qabala eşlemesini izler; diğer gelenekler farklı olabilir.',legend:'Bir düğüme veya yola tıkla · yol harfleri doğrudan Gematria Lab’a gönderilebilir.',info:'Seçim',gem:'🔢 Harf → Gematria',disc:'Tarihsel, mistik ve sembolik eşleştirmeler bilimsel kanıt olarak değil, gelenek/yorum olarak sunulur.',welcomeTitle:'Hayat Ağacı',welcome:'Bir Sefira veya 22 yoldan birini seç.',sephira:'Sefira',nodeNote:'Hayat Ağacının düğümü. Bu görünüm geleneksel adları ve sembolik tanımları matematiksel ifadelerden ayrı tutar.',value:'Değer',pathNote:'Bu yolun İbranice harfi, burada kullanılan Hermetik-Qabala yol eşlemesine göredir.',number:'Numara',quality:'Tanım',position:'Konum',nodePosition:'Hayat Ağacındaki düğüm',system:'Sistem',treeSystem:'Kabalistik Hayat Ağacı',path:'Yol',connection:'Bağlantı',letter:'Harf'}};
-function apply(){const t=T[lang()]||T.de;close.textContent=t.close;document.getElementById('treeTitle').textContent=t.title;document.getElementById('treeIntro').textContent=t.intro;document.getElementById('treeLegend').textContent=t.legend;document.getElementById('treeInfoTitle').textContent=t.info;toGem.textContent=t.gem;document.getElementById('treeDisclaimer').textContent=t.disc;if(!selectedLetter&&!card.querySelector('.active')){card.classList.remove('magicCard');card.innerHTML=`<div class="treeBig">🌳</div><b>${t.welcomeTitle||'Tree of Life'}</b><p class="treeNote">${t.welcome||'Wähle eine Sephira oder einen der 22 Pfade.'}</p>`}}
+function apply(){const t=T[lang()]||T.de;
+const top=document.getElementById('treeTopTitle');
+if(top) top.textContent=lang()==='en'?'PROJECT 19 · TREE OF LIFE · 22 LETTER PATHS':lang()==='it'?'PROJECT 19 · ALBERO DELLA VITA · 22 SENTIERI':lang()==='tr'?'PROJECT 19 · HAYAT AĞACI · 22 HARF YOLU':'PROJECT 19 · LEBENSBAUM · 22 BUCHSTABENPFADE';
+close.textContent=t.close;document.getElementById('treeTitle').textContent=t.title;document.getElementById('treeIntro').textContent=t.intro;document.getElementById('treeLegend').textContent=t.legend;document.getElementById('treeInfoTitle').textContent=t.info;toGem.textContent=t.gem;document.getElementById('treeDisclaimer').textContent=t.disc;if(!selectedLetter&&!card.querySelector('.active')){card.classList.remove('magicCard');card.innerHTML=`<div class="treeBig">🌳</div><b>${t.welcomeTitle||'Tree of Life'}</b><p class="treeNote">${t.welcome||'Wähle eine Sephira oder einen der 22 Pfade.'}</p>`}}
 btn.onclick=()=>{apply();lab.classList.add('show')};close.onclick=()=>lab.classList.remove('show');
 const gemReturnTree=document.getElementById('gemReturnTree');
 function returnLabel(){const l=lang();return l==='en'?'🌳 ← BACK TO TREE OF LIFE':l==='it'?'🌳 ← TORNA ALL’ALBERO DELLA VITA':l==='tr'?'🌳 ← HAYAT AĞACINA DÖN':'🌳 ← ZURÜCK ZUM TREE OF LIFE'}
@@ -6018,7 +6042,15 @@ document.addEventListener('DOMContentLoaded',()=>{
  it:['ASTRONOMIA','CICLI','ANTICO','CONFRONTO','Trascina = ruota · Rotella = zoom · Clic pianeta = info'],
  tr:['ASTRONOMİ','DÖNGÜLER','ANTİK','KARŞILAŞTIR','Sürükle = döndür · Fare tekerleği = zoom · Gezegene tıkla = bilgi']
  };
- function localize(){let t=T[lang()]||T.de;document.querySelectorAll('.ccTabs button').forEach((b,i)=>b.textContent=t[i]);document.getElementById('ccHint').textContent='🖱 '+t[4]}
+ function localize(){let t=T[lang()]||T.de;document.querySelectorAll('.ccTabs button').forEach((b,i)=>b.textContent=t[i]);
+ const L=lang(),H={
+ de:{astronomy:'Ziehen = drehen · Mausrad = Zoom · Planet/Stern anklicken = Info',cycles:'Ziehen = drehen · Mausrad = Zoom · Zyklus/Marker anklicken = Info',ancient:'Ziehen = drehen · Mausrad = Zoom · Objekt anklicken = Info',compare:'Ziehen = drehen · Mausrad = Zoom · Zyklus/Marker anklicken = Info'},
+ en:{astronomy:'Drag = rotate · Mouse wheel = zoom · Click planet/star = info',cycles:'Drag = rotate · Mouse wheel = zoom · Click cycle/marker = info',ancient:'Drag = rotate · Mouse wheel = zoom · Click object = info',compare:'Drag = rotate · Mouse wheel = zoom · Click cycle/marker = info'},
+ it:{astronomy:'Trascina = ruota · Rotella = zoom · Clic pianeta/stella = info',cycles:'Trascina = ruota · Rotella = zoom · Clic ciclo/indicatore = info',ancient:'Trascina = ruota · Rotella = zoom · Clic oggetto = info',compare:'Trascina = ruota · Rotella = zoom · Clic ciclo/indicatore = info'},
+ tr:{astronomy:'Sürükle = döndür · Fare tekerleği = zoom · Gezegen/yıldıza tıkla = bilgi',cycles:'Sürükle = döndür · Fare tekerleği = zoom · Döngü/işaretçiye tıkla = bilgi',ancient:'Sürükle = döndür · Fare tekerleği = zoom · Nesneye tıkla = bilgi',compare:'Sürükle = döndür · Fare tekerleği = zoom · Döngü/işaretçiye tıkla = bilgi'}
+ };
+ document.getElementById('ccHint').textContent='🖱 '+(H[L]||H.de)[mode];
+}
  function resize(){let r=cv.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);cv.width=r.width*d;cv.height=r.height*d;ctx.setTransform(d,0,0,d,0,0)}
  function R(a,max){return 42+Math.log1p(a)/Math.log(69)*max}
  function proj(x,y,z,cx,cy){let cyy=Math.cos(rotY),sy=Math.sin(rotY),cxx=Math.cos(rotX),sx=Math.sin(rotX);let X=x*cyy-z*sy,Z=x*sy+z*cyy,Y=y*cxx-Z*sx;Z=y*sx+Z*cxx;return [cx+X*zoom,cy+Y*zoom,Z]}
@@ -6290,7 +6322,7 @@ return '<div class="ccCard"><span class="ccBadge">'+T[0]+'</span><h3>'+T[1]+'</h
       mode=clicked;
       document.querySelectorAll('.ccTabs button').forEach(x=>x.classList.toggle('on',x===b));
    }
-   refresh();
+   localize();refresh();
  });
  document.getElementById('ccPlay').onclick=e=>{play=!play;e.target.textContent=play?'⏸ PAUSE':'▶ START'};
  document.getElementById('ccReset').onclick=()=>{year=0;rotX=-.2;rotY=-.18;zoom=1;document.getElementById('ccZoom').value=1;refresh()};
@@ -10351,6 +10383,24 @@ background:#07131e;color:#bcd1df;font-weight:850;letter-spacing:.06em;cursor:poi
 })();
 </script>
 
+
+<script id="p19AquariusOverlayLoader">
+(function(){
+  function addAquarius(){
+    if(document.getElementById('p19AquariusWatermark')) return;
+    var d=document.createElement('div');
+    d.id='p19AquariusWatermark';
+    d.setAttribute('aria-hidden','true');
+    document.body.appendChild(d);
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',addAquarius,{once:true});
+  } else {
+    addAquarius();
+  }
+})();
+</script>
+
 </body></html>
 
 <script id="p19AngelDynamicLanguageRefresh">
@@ -10408,5 +10458,137 @@ background:#07131e;color:#bcd1df;font-weight:850;letter-spacing:.06em;cursor:poi
  window.addEventListener('load',apply);
  document.addEventListener('click',()=>setTimeout(apply,0),true);
  setInterval(apply,200);
+})();
+</script>
+
+
+<script id="p19Save25CosmicClickInfo">
+(()=>{
+ const lab=document.getElementById('cosmicLab'),cv=document.getElementById('ccCanvas'),side=document.getElementById('ccSide');
+ if(!lab||!cv||!side)return;
+ const L=()=>((document.documentElement.lang||localStorage.getItem('p19lang')||'de').slice(0,2));
+ const mode=()=>document.querySelector('#cosmicLab .ccTabs button.on')?.dataset.mode||'astronomy';
+ const cycleNames=[
+  ['Day','Tag','Day','Giorno','Gün','≈ 24 h'],
+  ['Lunar Month','Mondmonat','Lunar Month','Mese lunare','Ay döngüsü','≈ 29.53059 d'],
+  ['Year','Jahr','Year','Anno','Yıl','≈ 365.2422 d'],
+  ['Metonic Cycle','Meton-Zyklus','Metonic Cycle','Ciclo metonico','Metonik döngü','≈ 19 y'],
+  ['Saros','Saros','Saros','Saros','Saros','≈ 18.03 y'],
+  ['Platonic Year','Platonisches Jahr','Platonic Year','Anno platonico','Platonik Yıl','≈ 25,772 y'],
+  ['Kali Yuga','Kali Yuga','Kali Yuga','Kali Yuga','Kali Yuga','432,000 y'],
+  ['Dvapara','Dvapara','Dvapara','Dvapara','Dvapara','864,000 y'],
+  ['Treta','Treta','Treta','Treta','Treta','1,296,000 y'],
+  ['Satya / Krita','Satya / Krita','Satya / Krita','Satya / Krita','Satya / Krita','1,728,000 y'],
+  ['Maha Yuga','Maha Yuga','Maha Yuga','Maha Yuga','Maha Yuga','4,320,000 y']
+ ];
+ const desc={
+  de:[
+   'Rotation der Erde um ihre Achse; Grundlage des Tages.',
+   'Mittlere Zeit von Neumond zu Neumond (synodischer Monat).',
+   'Mittlere Länge des tropischen Jahres.',
+   'Nach etwa 19 Jahren liegen Mondphasen und Kalenderdaten wieder nahe beieinander.',
+   'Finsterniszyklus: ähnliche Sonnen- und Mondfinsternisse wiederholen sich nach rund 18 Jahren 11 Tagen.',
+   'Präzessionszyklus der Erdachse; ungefähr 25.772 Jahre.',
+   'Kali Yuga ist ein Zeitabschnitt im traditionellen hinduistischen Yuga-Modell.',
+   'Dvapara Yuga ist ein Zeitabschnitt im traditionellen hinduistischen Yuga-Modell.',
+   'Treta Yuga ist ein Zeitabschnitt im traditionellen hinduistischen Yuga-Modell.',
+   'Satya/Krita Yuga ist ein Zeitabschnitt im traditionellen hinduistischen Yuga-Modell.',
+   'Maha Yuga = Satya + Treta + Dvapara + Kali. Traditionelles religiöses Zeitmodell, keine astronomische Messung.'
+  ],
+  en:[
+   'Earth rotating once on its axis; the basis of the day.',
+   'Mean time from new moon to new moon (synodic month).',
+   'Mean length of the tropical year.',
+   'After about 19 years lunar phases and calendar dates nearly realign.',
+   'Eclipse cycle: similar solar and lunar eclipses recur after roughly 18 years 11 days.',
+   'Axial-precession cycle of Earth; about 25,772 years.',
+   'Kali Yuga is a period in the traditional Hindu Yuga model.',
+   'Dvapara Yuga is a period in the traditional Hindu Yuga model.',
+   'Treta Yuga is a period in the traditional Hindu Yuga model.',
+   'Satya/Krita Yuga is a period in the traditional Hindu Yuga model.',
+   'Maha Yuga = Satya + Treta + Dvapara + Kali. A traditional religious time model, not an astronomical measurement.'
+  ],
+  it:[
+   'Rotazione della Terra sul proprio asse; base del giorno.',
+   'Tempo medio da novilunio a novilunio (mese sinodico).',
+   'Durata media dell’anno tropico.',
+   'Dopo circa 19 anni fasi lunari e date del calendario tornano quasi ad allinearsi.',
+   'Ciclo delle eclissi: eclissi solari e lunari simili ricorrono dopo circa 18 anni e 11 giorni.',
+   'Ciclo di precessione dell’asse terrestre; circa 25.772 anni.',
+   'Il Kali Yuga è un periodo del tradizionale modello induista degli Yuga.',
+   'Il Dvapara Yuga è un periodo del tradizionale modello induista degli Yuga.',
+   'Il Treta Yuga è un periodo del tradizionale modello induista degli Yuga.',
+   'Il Satya/Krita Yuga è un periodo del tradizionale modello induista degli Yuga.',
+   'Maha Yuga = Satya + Treta + Dvapara + Kali. Modello temporale religioso tradizionale, non una misura astronomica.'
+  ],
+  tr:[
+   'Dünya’nın kendi ekseni etrafındaki dönüşü; günün temelidir.',
+   'Yeni aydan yeni aya ortalama süre (sinodik ay).',
+   'Tropik yılın ortalama uzunluğu.',
+   'Yaklaşık 19 yıl sonra Ay evreleri ve takvim tarihleri yeniden büyük ölçüde hizalanır.',
+   'Tutulma döngüsü: benzer Güneş ve Ay tutulmaları yaklaşık 18 yıl 11 gün sonra tekrarlar.',
+   'Dünya ekseninin presesyon döngüsü; yaklaşık 25.772 yıl.',
+   'Kali Yuga, geleneksel Hindu Yuga modelindeki bir zaman dönemidir.',
+   'Dvapara Yuga, geleneksel Hindu Yuga modelindeki bir zaman dönemidir.',
+   'Treta Yuga, geleneksel Hindu Yuga modelindeki bir zaman dönemidir.',
+   'Satya/Krita Yuga, geleneksel Hindu Yuga modelindeki bir zaman dönemidir.',
+   'Maha Yuga = Satya + Treta + Dvapara + Kali. Geleneksel dini zaman modeli; astronomik ölçüm değildir.'
+  ]
+ };
+ function cycleCard(i){
+   const l=L(),li={de:1,en:2,it:3,tr:4}[l]||1,n=cycleNames[i];
+   const badge={de:'ZYKLUS-INFO',en:'CYCLE INFO',it:'INFO CICLO',tr:'DÖNGÜ BİLGİSİ'}[l];
+   side.innerHTML=`<div class="ccCard"><span class="ccBadge">${badge}</span><h3>${n[li]}</h3><p><b>${n[5]}</b></p><p>${(desc[l]||desc.de)[i]}</p></div>`;
+ }
+ function ancientCard(key){
+   const l=L();
+   const A={
+    nibiru:{
+     de:['NIBIRU / SITCHIN','INTERPRETATIVE EBENE','Im PROJECT-19-Modell ist Nibiru / Sitchin ausdrücklich als nicht bestätigte interpretative Hypothese markiert. Die gezeichnete Bahn ist nur Visualisierung und keine gemessene astronomische Umlaufbahn.'],
+     en:['NIBIRU / SITCHIN','INTERPRETIVE LAYER','In PROJECT 19, Nibiru / Sitchin is explicitly marked as an unconfirmed interpretive hypothesis. The drawn orbit is visualization only, not a measured astronomical orbit.'],
+     it:['NIBIRU / SITCHIN','LIVELLO INTERPRETATIVO','In PROJECT 19 Nibiru / Sitchin è indicato esplicitamente come ipotesi interpretativa non confermata. L’orbita disegnata è solo una visualizzazione, non un’orbita astronomica misurata.'],
+     tr:['NIBIRU / SITCHIN','YORUMLAYICI KATMAN','PROJECT 19’da Nibiru / Sitchin doğrulanmamış yorumlayıcı bir hipotez olarak açıkça işaretlenir. Çizilen yörünge yalnızca görselleştirmedir; ölçülmüş astronomik bir yörünge değildir.']
+    },
+    nine:{
+     de:['PLANET NINE / X','HYPOTHETISCH','Planet Nine bezeichnet die wissenschaftliche Hypothese eines noch unentdeckten massereichen Planeten im äußeren Sonnensystem. Seine Existenz ist bisher nicht bestätigt.'],
+     en:['PLANET NINE / X','HYPOTHETICAL','Planet Nine is the scientific hypothesis of a still-undiscovered massive planet in the outer Solar System. Its existence has not been confirmed.'],
+     it:['PLANET NINE / X','IPOTETICO','Planet Nine è l’ipotesi scientifica di un pianeta massiccio non ancora scoperto nel Sistema Solare esterno. La sua esistenza non è stata confermata.'],
+     tr:['PLANET NINE / X','VARSAYIMSAL','Planet Nine, dış Güneş Sistemi’nde henüz keşfedilmemiş büyük kütleli bir gezegen hipotezidir. Varlığı henüz doğrulanmamıştır.']
+    },
+    sirius:{
+     de:['SIRIUS A + B','REALES DOPPELSTERNSYSTEM','Sirius ist ein reales Doppelsternsystem etwa 8,6 Lichtjahre von der Erde entfernt. Sirius B ist ein Weißer Zwerg; beide Sterne umkreisen ihren gemeinsamen Schwerpunkt.'],
+     en:['SIRIUS A + B','REAL BINARY STAR SYSTEM','Sirius is a real binary star system about 8.6 light-years from Earth. Sirius B is a white dwarf; the two stars orbit their common center of mass.'],
+     it:['SIRIO A + B','SISTEMA BINARIO REALE','Sirio è un sistema stellare binario reale a circa 8,6 anni luce dalla Terra. Sirio B è una nana bianca; le due stelle orbitano attorno al comune centro di massa.'],
+     tr:['SIRIUS A + B','GERÇEK ÇİFT YILDIZ SİSTEMİ','Sirius, Dünya’dan yaklaşık 8,6 ışık yılı uzakta gerçek bir çift yıldız sistemidir. Sirius B bir beyaz cücedir; iki yıldız ortak kütle merkezlerinin çevresinde döner.']
+    }
+   }[key][l]||A[key].de;
+   side.innerHTML=`<div class="ccCard"><span class="ccBadge">${A[1]}</span><h3>${A[0]}</h3><p>${A[2]}</p></div>`;
+ }
+ cv.addEventListener('click',e=>{
+   const m=mode(); if(m==='astronomy')return;
+   const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,w=r.width,h=r.height;
+   if(m==='cycles'||m==='compare'){
+     // Label columns are the clearest click targets; also accept approximate ring radii.
+     const cx=w*.46,cy=h*.48,max=Math.min(w,h)*.42,usable=Math.min(max*1.18,Math.min(w*.38,h*.42));
+     const lx=Math.min(w-330,cx+usable+22);
+     let best=-1,bd=1e9;
+     for(let i=0;i<11;i++){
+       const col=i<6?0:1,row=i<6?i:i-6,tx=lx+col*155,ty=cy-usable+14+row*31;
+       const d=Math.hypot(x-tx,y-ty);if(d<bd){bd=d;best=i}
+     }
+     if(bd<70){cycleCard(best);return}
+     const rr=Math.hypot(x-cx,y-cy),base=usable*.18,step=(usable-base)/10;
+     let ri=Math.round((rr-base)/step);
+     if(ri>=0&&ri<11&&Math.abs(rr-(base+ri*step))<18)cycleCard(ri);
+   }else if(m==='ancient'){
+     const cx=w*.46,cy=h*.48,max=Math.min(w,h)*.42;
+     const p1=[cx+Math.cos(.55)*max*.88,cy+Math.sin(.55)*max*.88*.72];
+     const p2=[cx+Math.cos(.55+2.15)*max*.97,cy+Math.sin(.55+2.15)*max*.97*.72];
+     const sx=Math.max(100,w-150),sy=Math.max(110,h-150);
+     if(Math.hypot(x-p1[0],y-p1[1])<45){ancientCard('nibiru');return}
+     if(Math.hypot(x-p2[0],y-p2[1])<45){ancientCard('nine');return}
+     if(Math.hypot(x-sx,y-sy)<85){ancientCard('sirius');return}
+   }
+ },true);
 })();
 </script>
