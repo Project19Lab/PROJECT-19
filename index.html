@@ -10142,6 +10142,111 @@ background:#07131e;color:#bcd1df;font-weight:850;letter-spacing:.06em;cursor:poi
 })();
 </script>
 
+
+<script id="p19MainMenuLangFix">
+(()=>{
+ const labels={
+  de:{plants:'🌿 PFLANZEN',animals:'🐾 TIERE',soap:'🧼 SEIFE',matter:'⚛ MATERIE & LEBEN'},
+  en:{plants:'🌿 PLANTS',animals:'🐾 ANIMALS',soap:'🧼 SOAP',matter:'⚛ MATTER & LIFE'},
+  it:{plants:'🌿 PIANTE',animals:'🐾 ANIMALI',soap:'🧼 SAPONE',matter:'⚛ MATERIA & VITA'},
+  tr:{plants:'🌿 BİTKİLER',animals:'🐾 HAYVANLAR',soap:'🧼 SABUN',matter:'⚛ MADDE & YAŞAM'}
+ };
+ function lang(){return localStorage.getItem('p19lang')||'de'}
+ function findByText(words){
+   return [...document.querySelectorAll('button')].find(b=>{
+     const t=(b.textContent||'').toUpperCase();
+     return words.some(w=>t.includes(w));
+   });
+ }
+ function apply(){
+   const x=labels[lang()]||labels.de;
+   const p=findByText(['PLANTS','PFLANZEN','PIANTE','BİTKİLER']);
+   const a=findByText(['ANIMALS','TIERE','ANIMALI','HAYVANLAR']);
+   const soap=findByText(['SEIFE','SOAP','SAPONE','SABUN']);
+   const m=findByText(['MATTER & LIFE','MATERIE & LEBEN','MATERIA & VITA','MADDE & YAŞAM']);
+   if(p)p.textContent=x.plants;
+   if(a)a.textContent=x.animals;
+   if(soap)soap.textContent=x.soap;
+   if(m)m.textContent=x.matter;
+ }
+ apply();
+ // Existing language selection can rebuild/localize parts of the UI, so reapply safely.
+ setInterval(apply,500);
+})();
+</script>
+
+
+<script id="p19BuildUiLangFix">
+(()=>{
+ const T={
+   de:{speed:['Geschwindigkeit','Aufbau-Tempo'], complete:'Aufbau vollständig'},
+   en:{speed:['Speed','Build Speed'], complete:'Build complete'},
+   it:{speed:['Velocità','Velocità costruzione'], complete:'Costruzione completa'},
+   tr:{speed:['Hız','Kurulum hızı'], complete:'Kurulum tamamlandı'}
+ };
+ const L=()=>localStorage.getItem('p19lang')||'de';
+
+ function apply(){
+   const x=T[L()]||T.de;
+   const root=document.querySelector('#matterLifeLab')?.parentElement || document.body;
+
+   // Translate labels by recognizing all known variants.
+   [...root.querySelectorAll('div,span,label,p')].forEach(el=>{
+     if(el.children.length) return;
+     const raw=(el.textContent||'').trim();
+     const norm=raw.toLowerCase();
+
+     if(['speed','geschwindigkeit','aufbau-tempo','velocità','velocità costruzione','hız','kurulum hızı'].includes(norm)){
+       el.textContent=x.speed[0];
+       return;
+     }
+
+     // Preserve a percentage prefix if present.
+     if(/^\d+%\s*[·\-]?\s*(aufbau vollständig|build complete|construction complete|costruzione completa|kurulum tamamlandı|yapım tamamlandı)$/i.test(raw)){
+       const pct=(raw.match(/^\d+%/)||['100%'])[0];
+       el.textContent=pct+' · '+x.complete;
+     }
+   });
+ }
+ apply();
+ setInterval(apply,500);
+})();
+</script>
+
+
+<script id="p19ProgressSourceFix">
+(()=>{
+ const progressText={
+   de:'Aufbau vollständig',
+   en:'Build complete',
+   it:'Costruzione completa',
+   tr:'Kurulum tamamlandı'
+ };
+ const currentLang=()=>localStorage.getItem('p19lang')||'de';
+
+ function forceProgress(){
+   // Find the actual progress element by its current source text and pin its text
+   // after the app's own renderer has finished.
+   const all=document.querySelectorAll('div,span,p,label');
+   for(const el of all){
+     if(el.children.length) continue;
+     const raw=(el.textContent||'').trim();
+     if(!raw.includes('%')) continue;
+     if(/Aufbau vollständig|Build complete|Costruzione completa|Kurulum tamamlandı/i.test(raw)){
+       const pct=(raw.match(/\d+(?:\.\d+)?%/)||['100%'])[0];
+       const txt=pct+' · '+(progressText[currentLang()]||progressText.de);
+       if(el.textContent!==txt) el.textContent=txt;
+     }
+   }
+ }
+ // MutationObserver catches the exact moment the original renderer writes German again.
+ const obs=new MutationObserver(forceProgress);
+ obs.observe(document.body,{subtree:true,childList:true,characterData:true});
+ window.addEventListener('load',forceProgress);
+ forceProgress();
+})();
+</script>
+
 </body></html>
 
 <script id="p19AngelDynamicLanguageRefresh">
